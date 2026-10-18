@@ -1,0 +1,3169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Despiece y Cotizador - Division de Baño Profesional</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --secondary: #0284c7;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #cbd5e1;
+      --input-bg: #ffffff;
+
+      --color-vidrios-header: #00b0f0;
+      --color-corrediza: #d9e1f2;
+      --color-corrediza-text: #1f4e78;
+      --color-fijo: #e2efda;
+      --color-fijo-text: #385723;
+    }
+
+    html.dark-mode,
+    body.dark-mode {
+      --primary: #60a5fa;
+      --secondary: #38bdf8;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f1f5f9;
+      --border: #475569;
+      --input-bg: #334155;
+
+      --color-corrediza: #1e3a5f;
+      --color-corrediza-text: #93c5fd;
+      --color-fijo: #143823;
+      --color-fijo-text: #86efac;
+    }
+
+    html, body {
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color 0.3s, color 0.3s;
+      min-height: 100%;
+      width: 100%;
+    }
+
+    html {
+      min-height: 100vh;
+      background-color: var(--bg);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      background-color: var(--bg);
+    }
+
+    .container {
+      max-width: 100%;
+      width: 100%;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border: 1px solid var(--border);
+      box-sizing: border-box;
+      overflow-x: auto;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin: 0;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .header-controls .btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 5px;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 5px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { color: var(--secondary); }
+    .tab-btn.active {
+      border-bottom-color: var(--secondary);
+      color: var(--secondary);
+      background-color: rgba(2, 132, 199, 0.08);
+      border-radius: 6px 6px 0 0;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .vertical-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .inputs-section {
+      background: rgba(0, 0, 0, 0.03);
+      padding: 15px 20px;
+      border-radius: 8px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      border: 1px solid var(--border);
+    }
+
+    .input-group {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .input-group input, select {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 15px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-weight: bold;
+      background-color: var(--input-bg);
+      color: var(--text);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    body.dark-mode th { color: #0f172a; }
+
+    .highlight-cell {
+      background-color: rgba(16, 185, 129, 0.15) !important;
+      color: #065f46 !important;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    body.dark-mode .highlight-cell {
+      background-color: rgba(16, 185, 129, 0.25) !important;
+      color: #6ee7b7 !important;
+    }
+
+    h2.vidrios-title {
+      background-color: var(--color-vidrios-header);
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-top: 30px;
+      font-size: 18px;
+    }
+
+    .table-vidrios th {
+      background-color: var(--color-vidrios-header);
+      color: #000000;
+      font-weight: bold;
+    }
+
+    tr.row-corrediza, tr.row-corrediza td {
+      background-color: var(--color-corrediza) !important;
+      color: var(--color-corrediza-text) !important;
+      font-weight: 600;
+    }
+
+    tr.row-fijo, tr.row-fijo td {
+      background-color: var(--color-fijo) !important;
+      color: var(--color-fijo-text) !important;
+      font-weight: 600;
+    }
+
+    td[contenteditable="true"] { cursor: text; }
+    td.locked {
+      background-color: transparent !important;
+      cursor: default;
+      outline: none !important;
+    }
+
+    .precio-input-tabla {
+      width: 100px;
+      padding: 4px 6px;
+      font-size: 13px;
+      font-weight: bold;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background-color: var(--input-bg);
+      color: var(--text);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary { background: var(--secondary); color: white; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-toggle { background: var(--border); color: var(--text); }
+    .btn:hover { opacity: 0.9; }
+
+    .schema-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      color: var(--text);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .info-card-plano {
+      background: rgba(0,0,0,0.03);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 10px;
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .info-card-plano strong {
+      color: var(--primary);
+    }
+
+    .vertical-cost-panel {
+      max-width: 600px;
+      margin: 30px auto 10px auto;
+      background: rgba(0,0,0,0.02);
+      border: 2px solid var(--secondary);
+      border-radius: 10px;
+      padding: 20px;
+      color: var(--text);
+    }
+
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 15px;
+    }
+
+    .cost-row:last-child {
+      border-bottom: none;
+    }
+
+    .cost-row.total-final {
+      background-color: var(--primary);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    svg { width: 100%; max-height: 280px; }
+
+    /* Estilos solo para PDF / impresión: planos completos y lectura profesional */
+    body.pdf-exporting,
+    body.pdf-exporting * {
+      color-scheme: light;
+    }
+    body.pdf-exporting {
+      background: #ffffff !important;
+      color: #1e293b !important;
+    }
+    body.pdf-exporting .container {
+      box-shadow: none !important;
+      border: none !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 8px !important;
+      background: #ffffff !important;
+      box-sizing: border-box !important;
+      left: 0 !important;
+      transform: none !important;
+    }
+    body.pdf-exporting {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    body.pdf-exporting .no-print { display: none !important; }
+    body.pdf-exporting .tab-content { display: none !important; }
+    body.pdf-exporting #tab-despiece { display: block !important; }
+    body.pdf-exporting .modal-overlay { display: none !important; }
+
+    body.pdf-exporting .header-bar {
+      border-bottom: 3px solid #0284c7 !important;
+      margin-bottom: 16px !important;
+      padding-bottom: 12px !important;
+    }
+    body.pdf-exporting h1 {
+      font-size: 18px !important;
+      color: #1e3a8a !important;
+    }
+    body.pdf-exporting h2 {
+      font-size: 14px !important;
+      margin-top: 22px !important;
+      margin-bottom: 10px !important;
+      padding: 8px 10px !important;
+      background: #f1f5f9 !important;
+      border-left: 4px solid #0284c7 !important;
+      border-radius: 4px !important;
+      color: #1e3a8a !important;
+      page-break-after: avoid;
+    }
+    body.pdf-exporting h2.vidrios-title {
+      background: #00b0f0 !important;
+      color: #ffffff !important;
+      border-left-color: #0369a1 !important;
+    }
+    body.pdf-exporting h3 {
+      font-size: 13px !important;
+      color: #1e3a8a !important;
+      page-break-after: avoid;
+    }
+
+    /* Planos SVG completos, sin recorte */
+    body.pdf-exporting svg {
+      max-height: none !important;
+      height: auto !important;
+      width: 100% !important;
+      overflow: visible !important;
+    }
+    body.pdf-exporting #plano-svg {
+      max-height: none !important;
+      height: 360px !important;
+      width: 100% !important;
+    }
+    body.pdf-exporting #svg-panel-corrediza,
+    body.pdf-exporting #svg-panel-fijo {
+      max-height: none !important;
+      height: 200px !important;
+    }
+    body.pdf-exporting .pdf-plano-img {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      display: block !important;
+      margin: 8px auto 12px auto !important;
+      border: 1px solid #94a3b8 !important;
+      border-radius: 6px !important;
+      background: #ffffff !important;
+      page-break-inside: avoid !important;
+    }
+    body.pdf-exporting .schema-container {
+      max-width: 100% !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      overflow: visible !important;
+      padding: 16px !important;
+      margin: 12px 0 18px 0 !important;
+      border: 1px solid #94a3b8 !important;
+      background: #f8fafc !important;
+    }
+    body.pdf-exporting .info-card-plano {
+      font-size: 12px !important;
+      line-height: 1.7 !important;
+      background: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      padding: 12px !important;
+    }
+    body.pdf-exporting .info-card-plano strong {
+      color: #1e3a8a !important;
+    }
+
+    /* Tablas más legibles en PDF — no recortar: si no cabe, pasa a otra hoja */
+    body.pdf-exporting table {
+      font-size: 9.5px !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      border-collapse: collapse !important;
+      table-layout: fixed !important;
+      box-sizing: border-box !important;
+    }
+    body.pdf-exporting #box-plano-paneles {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    body.pdf-exporting h2 {
+      page-break-inside: avoid !important;
+      break-after: avoid !important;
+    }
+    body.pdf-exporting th {
+      background: #1e3a8a !important;
+      color: #ffffff !important;
+      font-size: 9px !important;
+      padding: 5px 3px !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body.pdf-exporting .table-vidrios th {
+      background: #00b0f0 !important;
+      color: #000000 !important;
+    }
+    body.pdf-exporting td {
+      padding: 4px 3px !important;
+      vertical-align: middle !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      overflow: hidden !important;
+    }
+    body.pdf-exporting tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    body.pdf-exporting .highlight-cell {
+      background: #d1fae5 !important;
+      color: #065f46 !important;
+      font-weight: bold !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body.pdf-exporting tr.row-corrediza td {
+      background: #d9e1f2 !important;
+      color: #1f4e78 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body.pdf-exporting tr.row-fijo td {
+      background: #e2efda !important;
+      color: #385723 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Panel de costos profesional */
+    body.pdf-exporting .vertical-cost-panel {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      border: 2px solid #1e3a8a !important;
+      background: #f8fafc !important;
+      margin-top: 24px !important;
+      padding: 18px !important;
+    }
+    body.pdf-exporting .cost-row {
+      font-size: 13px !important;
+      padding: 8px 0 !important;
+    }
+    body.pdf-exporting .cost-row.total-final {
+      background: #1e3a8a !important;
+      color: #ffffff !important;
+      font-size: 16px !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body.pdf-exporting .inputs-section {
+      display: none !important;
+    }
+    body.pdf-exporting .precio-input-tabla {
+      border: none !important;
+      background: transparent !important;
+      font-weight: bold !important;
+      width: auto !important;
+      padding: 0 !important;
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; padding: 0; }
+      .container { box-shadow: none; padding: 10px; border: none; max-width: 100%; }
+      .tab-content { display: none !important; }
+      #tab-despiece { display: block !important; }
+      .header-bar { border-bottom: 2px solid #0284c7; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      .vertical-cost-panel { border: 2px solid #1e3a8a; page-break-inside: avoid; }
+      .modal-overlay { display: none !important; }
+      .schema-container { page-break-inside: avoid; overflow: visible !important; }
+      svg { max-height: none !important; height: auto !important; }
+      #plano-svg { height: 300px !important; max-height: none !important; }
+      .inputs-section { display: none !important; }
+      h2 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="pdf-export-container">
+  <div class="header-bar">
+    <h1>División de Baño - Despiece & Cotizador Avanzado</h1>
+    <div class="header-controls no-print">
+      <button class="btn btn-success" onclick="guardarProyecto()" title="Descargar proyecto completo como archivo JSON">
+        &#128190; Guardar Proyecto
+      </button>
+      <button class="btn btn-primary" onclick="abrirProyecto()" title="Abrir un proyecto guardado (.json)">
+        &#128194; Abrir Proyecto
+      </button>
+      <input type="file" id="input-abrir-proyecto" accept=".json,application/json" style="display:none" onchange="cargarProyectoDesdeArchivo(event)">
+      <button class="btn btn-toggle" onclick="guardarDatosMemoria()" title="Guardar configuración en este navegador (localStorage)">
+        &#128204; Guardar Config
+      </button>
+      <button class="btn btn-toggle" id="btn-lock" onclick="toggleLock()">
+        &#128274; <span id="lock-label">Edición Activada</span>
+      </button>
+      <button class="btn btn-toggle" onclick="toggleDarkMode()">
+        &#127769; <span id="theme-label">Modo Oscuro</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="tabs-nav no-print">
+    <button class="tab-btn active" onclick="switchTab('tab-despiece')">&#128208; 1. Despiece & Panel</button>
+    <button class="tab-btn" onclick="switchTab('tab-plano-config')">&#128444; 2. Configurar Hoja</button>
+    <button class="tab-btn" onclick="switchTab('tab-colores')">&#127912; 3. Catálogo de Aluminio</button>
+  </div>
+
+  <!-- PESTAÑA 1: DESPIECE Y PLANO -->
+  <div id="tab-despiece" class="tab-content active">
+    
+    <div class="vertical-layout">
+      
+      <!-- BARRA DE PÁGINAS INDEPENDIENTES -->
+      <div class="no-print" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:15px; padding:10px; background:rgba(2,132,199,0.08); border-radius:8px; border:1px solid var(--secondary);">
+        <span style="font-weight:bold; color:var(--primary); font-size:13px;">Páginas:</span>
+        <div id="barra-paginas-divisiones" style="display:flex; gap:5px; flex-wrap:wrap;"></div>
+        <button class="btn btn-primary" style="padding:6px 12px; font-size:13px;" onclick="agregarPaginaDivision()" title="Agregar nueva división independiente">＋ Nueva División</button>
+        <button class="btn btn-danger" style="padding:6px 10px; font-size:12px;" onclick="eliminarPaginaActual()" title="Eliminar página actual">&#10006; Eliminar esta</button>
+      </div>
+
+      <!-- MEDIDAS PRINCIPALES DE OBRA -->
+      <div class="inputs-section no-print">
+        <div class="input-group">
+          <label for="alto">&#128208; ALTO Total (cm)</label>
+          <input type="number" id="alto" value="180" step="0.1" oninput="chequearDescuadreAncho(); calcularTodo(); guardarPaginaActual();">
+        </div>
+        <div class="input-group">
+          <label for="ancho-inferior">&#8596;&#65039; ANCHO Inferior (cm)</label>
+          <input type="number" id="ancho-inferior" value="150" step="0.1" oninput="chequearDescuadreAncho(); calcularTodo(); guardarPaginaActual();">
+        </div>
+        <div class="input-group">
+          <label for="ancho-superior">&#8596;&#65039; ANCHO Superior (cm)</label>
+          <input type="number" id="ancho-superior" value="155" step="0.1" oninput="chequearDescuadreAncho(); calcularTodo(); guardarPaginaActual();">
+        </div>
+        <div class="input-group">
+          <label for="cantidad">&#128290; CANTIDAD DIVISIONES</label>
+          <input type="number" id="cantidad" value="1" min="1" oninput="calcularTodo(); guardarPaginaActual();">
+        </div>
+      </div>
+
+      <!-- MÓDULO CONDICIONAL DE DESCUADRE DE ANCHO -->
+      <div id="box-config-descuadre-ancho" class="inputs-section no-print" style="display:none; background: rgba(2,132,199,0.06); border: 2px solid var(--secondary);">
+        <div style="width:100%; font-weight:bold; color:var(--primary); margin-bottom:5px;">
+          &#9888;&#65039; ¡Diferencia detectada entre Ancho Superior e Inferior! Configurar Descuadre:
+        </div>
+        
+        <div class="input-group" style="min-width:100%;">
+          <label><input type="checkbox" id="check-ignorar-descuadre" onchange="controlarIgnorarDescuadre(); calcularTodo();"> &#128683; <b>Ignorar descuadre</b> (Fabricar naves cuadradas / solo cortar cabezales y carrileras)</label>
+        </div>
+
+        <div id="box-detalles-descuadre" style="width:100%; display:flex; gap:15px; flex-wrap:wrap; margin-top:5px;">
+          <div class="input-group">
+            <label for="select-ubicacion-descuadre-ancho">¿En qué parte tiene el descuadre?</label>
+            <select id="select-ubicacion-descuadre-ancho" onchange="actualizarCamposDescuadre(); calcularTodo();">
+              <option value="ARRIBA DERECHA">Arriba Derecha</option>
+              <option value="ARRIBA IZQUIERDA">Arriba Izquierda</option>
+              <option value="ABAJO DERECHA">Abajo Derecha</option>
+              <option value="ABAJO IZQUIERDA">Abajo Izquierda</option>
+              <option value="AMBOS LADOS">Ambos lados</option>
+            </select>
+          </div>
+
+          <!-- Configuración detallada para Ambos Lados -->
+          <div class="input-group" id="group-desc-ambos-detalles" style="display:none; width:100%;">
+            <label style="color:var(--primary); margin-bottom:6px;">Configuración detallada de Ambos Lados:</label>
+            <div style="display:flex; gap:15px; flex-wrap:wrap; background:rgba(0,0,0,0.02); padding:10px; border-radius:6px; border:1px solid var(--border);">
+              
+              <!-- Lado Izquierdo -->
+              <div style="flex:1; min-width:260px;">
+                <label style="font-size:13px; color:var(--secondary);">Lado IZQUIERDO:</label>
+                <div style="display:flex; gap:8px; margin-top:4px;">
+                  <select id="select-ambos-izq-ubicacion" style="font-size:13px;" onchange="calcularTodo()">
+                    <option value="ARRIBA">Arriba</option>
+                    <option value="ABAJO">Abajo</option>
+                  </select>
+                  <input type="number" id="valor-descuadre-izq" value="1.0" step="0.1" style="font-size:13px;" placeholder="cm" oninput="calcularTodo()">
+                </div>
+              </div>
+
+              <!-- Lado Derecho -->
+              <div style="flex:1; min-width:260px;">
+                <label style="font-size:13px; color:var(--secondary);">Lado DERECHO:</label>
+                <div style="display:flex; gap:8px; margin-top:4px;">
+                  <select id="select-ambos-der-ubicacion" style="font-size:13px;" onchange="calcularTodo()">
+                    <option value="ARRIBA">Arriba</option>
+                    <option value="ABAJO" selected>Abajo</option>
+                  </select>
+                  <input type="number" id="valor-descuadre-der" value="2.0" step="0.1" style="font-size:13px;" placeholder="cm" oninput="calcularTodo()">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLANO VISUAL SVG -->
+      <div class="schema-container">
+        <h3 style="margin-top:0; font-size:15px;">&#128208; Plano Visual de la División (Efecto Descuadrado)</h3>
+        <svg id="plano-svg" viewBox="0 0 340 240">
+          <defs>
+            <marker id="arrow-right" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+            </marker>
+            <marker id="arrow-left" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 10 0 L 0 5 L 10 10 z" fill="#10b981"/>
+            </marker>
+          </defs>
+
+          <polygon id="svg-marco-principal" points="60,25 280,25 280,195 60,195" fill="none" stroke="#1e3a8a" stroke-width="4"/>
+
+          <g id="group-hoja-izq">
+            <polygon id="poly-izq" points="62,27 170,27 170,193 62,193" fill="#e2efda" stroke="#385723" stroke-width="2"/>
+            <text id="text-izq" x="116" y="105" font-size="12" fill="#385723" text-anchor="middle" font-weight="bold">FIJO</text>
+            <g id="icon-izq"></g>
+          </g>
+
+          <g id="group-hoja-der">
+            <polygon id="poly-der" points="170,27 278,27 278,193 170,193" fill="#d9e1f2" stroke="#1f4e78" stroke-width="2"/>
+            <text id="text-der" x="224" y="105" font-size="12" fill="#1f4e78" text-anchor="middle" font-weight="bold">CORREDIZA</text>
+            <g id="icon-der"></g>
+          </g>
+          
+          <line x1="30" y1="25" x2="30" y2="195" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="22" y="115" font-size="12" fill="#ef4444" text-anchor="middle" font-weight="bold" id="cota-alto" transform="rotate(-90 22 115)">180 cm</text>
+          
+          <line x1="60" y1="215" x2="280" y2="215" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="170" y="230" font-size="11" fill="#ef4444" text-anchor="middle" font-weight="bold" id="cota-ancho-inf">Inf: 150 cm</text>
+          
+          <line id="linea-cota-sup" x1="60" y1="10" x2="280" y2="10" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="170" y="8" font-size="11" fill="#ef4444" text-anchor="middle" font-weight="bold" id="cota-ancho-sup">Sup: 155 cm</text>
+
+          <text id="txt-alerta-descuadre-plano" x="170" y="115" font-size="11" fill="#ef4444" font-weight="bold" text-anchor="middle" style="display:none; text-shadow: 1px 1px 2px #fff;"></text>
+        </svg>
+
+        <div class="info-card-plano">
+          <div><strong>&#127912; Acabado Aluminio:</strong> <span id="info-aluminio-color">Aluminio Mate / Natural</span></div>
+          <div><strong>&#129524; Tipo de Panel:</strong> <span id="info-panel-material">Acrílico Chino / Burbuja (Humo)</span></div>
+          <div><strong>&#128205; Ubicación Fijo:</strong> <span id="info-fijo-lado">Izquierda</span></div>
+          <div><strong>&#128230; Cant. Pedido:</strong> <span id="info-cant-divisiones" style="color:var(--primary); font-weight:bold;">3 División(es)</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 1. Despiece de Perfiles de Aluminio -->
+    <h2>&#128736; 1. Despiece de Perfiles de Aluminio (Medidas Superiores e Inferiores Independientes)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>&#128221; Descripción Perfil</th>
+          <th>&#9881; Fórmula / Regla</th>
+          <th>&#128208; Medida Superior (cm)</th>
+          <th>&#128208; Medida Inferior (cm)</th>
+          <th>&#128290; Cant. x Div.</th>
+          <th>&#128230; TOTAL PIEZAS</th>
+          <th>&#128202; Longitud Total (cm)</th>
+          <th class="no-print">&#9881; Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-despiece-aluminio">
+        <tr>
+          <td>CABEZAL</td>
+          <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">ANCHO_SUP</td>
+          <td id="med-cabezal-sup">155.0</td>
+          <td id="med-cabezal-inf">155.0</td>
+          <td contenteditable="true" class="edit-cell cant-val" id="cant-cabezal" oninput="calcularTodo()">1</td>
+          <td class="highlight-cell" id="piezas-cabezal">3 pedazo(s)</td>
+          <td id="tot-cm-cabezal">465.0 cm</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td>CARRILERA</td>
+          <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">ANCHO_INF - 1</td>
+          <td id="med-carrilera-sup">149.0</td>
+          <td id="med-carrilera-inf">149.0</td>
+          <td contenteditable="true" class="edit-cell cant-val" id="cant-carrilera" oninput="calcularTodo()">1</td>
+          <td class="highlight-cell" id="piezas-carrilera">3 pedazo(s)</td>
+          <td id="tot-cm-carrilera">447.0 cm</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td>JAMBA</td>
+          <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">ALTO - 3</td>
+          <td id="med-jamba-sup">177.0</td>
+          <td id="med-jamba-inf">177.0</td>
+          <td contenteditable="true" class="edit-cell cant-val" id="cant-jamba" oninput="calcularTodo()">2</td>
+          <td class="highlight-cell" id="piezas-jamba">6 pedazo(s)</td>
+          <td id="tot-cm-jamba">1062.0 cm</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr class="row-corrediza" data-perfil-grupo="U325">
+          <td id="lbl-u325-alto-nave">U325 ALTO NAVE</td>
+          <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">ALTO - 5.4</td>
+          <td id="med-u325-alto-nave-sup">174.6</td>
+          <td id="med-u325-alto-nave-inf">174.6</td>
+          <td contenteditable="true" class="edit-cell cant-val" id="cant-u325-alto-nave" oninput="calcularTodo()">2</td>
+          <td class="highlight-cell" id="piezas-u325-alto-nave">6 pedazo(s)</td>
+          <td id="tot-cm-u325-alto-nave">1047.6 cm</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr class="row-corrediza" data-perfil-grupo="U325">
+          <td id="lbl-u325-ancho-nave">U325 ANCHO NAVE</td>
+          <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">(ANCHO_INF + 4) / 2</td>
+          <td id="med-u325-ancho-nave-sup">77.0</td>
+          <td id="med-u325-ancho-nave-inf">77.0</td>
+          <td contenteditable="true" class="edit-cell cant-val" id="cant-u325-ancho-nave" oninput="calcularTodo()">2</td>
+          <td class="highlight-cell" id="piezas-u325-ancho-nave">6 pedazo(s)</td>
+          <td id="tot-cm-u325-ancho-nave">462.0 cm</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr class="row-fijo" data-perfil-grupo="U325">
+          <td id="lbl-u325-alto-fijo">U325 ALTO FIJO</td>
+          <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">ALTO_NAVE + 1</td>
+          <td id="med-u325-alto-fijo-sup">175.6</td>
+          <td id="med-u325-alto-fijo-inf">175.6</td>
+          <td contenteditable="true" class="edit-cell cant-val" id="cant-u325-alto-fijo" oninput="calcularTodo()">2</td>
+          <td class="highlight-cell" id="piezas-u325-alto-fijo">6 pedazo(s)</td>
+          <td id="tot-cm-u325-alto-fijo">1053.6 cm</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr class="row-fijo" data-perfil-grupo="U325">
+          <td id="lbl-u325-ancho-fijo">U325 ANCHO FIJO</td>
+          <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">ANCHO_NAVE - 2.5</td>
+          <td id="med-u325-ancho-fijo-sup">74.5</td>
+          <td id="med-u325-ancho-fijo-inf">74.5</td>
+          <td contenteditable="true" class="edit-cell cant-val" id="cant-u325-ancho-fijo" oninput="calcularTodo()">2</td>
+          <td class="highlight-cell" id="piezas-u325-ancho-fijo">6 pedazo(s)</td>
+          <td id="tot-cm-u325-ancho-fijo">447.0 cm</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td>BARRA TOALLERO</td>
+          <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">ANCHO_NAVE - 7</td>
+          <td id="med-barra-toallero-sup">70.0</td>
+          <td id="med-barra-toallero-inf">70.0</td>
+          <td contenteditable="true" class="edit-cell cant-val" id="cant-barra-toallero" oninput="calcularTodo()">2</td>
+          <td class="highlight-cell" id="piezas-barra-toallero">6 pedazo(s)</td>
+          <td id="tot-cm-barra-toallero">420.0 cm</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary no-print" onclick="agregarPerfil()">&#10133; Añadir Perfil Personalizado</button>
+
+    <!-- 2. MEDIDAS DE PANELES CON ANCHOS SUPERIOR E INFERIOR SEPARADOS -->
+    <h2 class="vidrios-title">&#129524; 2. Medidas de Paneles y Metraje Total (Acrílico o Vidrio 4mm)</h2>
+    
+    <div class="inputs-section no-print" style="margin-bottom: 20px;">
+      <div class="input-group">
+        <label for="tipo-material-panel">&#128736; Tipo de Material Principal:</label>
+        <select id="tipo-material-panel" onchange="calcularTodo()">
+          <option value="ACRILICO">Acrílico (Optimización por Lámina)</option>
+          <option value="VIDRIO">Vidrio 4mm (Cálculo por m²)</option>
+        </select>
+      </div>
+
+      <div class="input-group" id="box-select-estilo-acrilico">
+        <label for="select-estilo-acrilico">&#127912; Tipo / Color de Acrílico:</label>
+        <div style="display:flex; gap:8px;">
+          <select id="select-estilo-acrilico" onchange="calcularTodo()">
+          </select>
+          <button class="btn btn-toggle" onclick="abrirModalAcrilicos()" title="Añadir, editar o borrar opciones de acrílico">
+            &#9881; Añadir / Editar
+          </button>
+        </div>
+      </div>
+
+      <div id="box-precios-acrilico" style="display:flex; gap:15px; flex:2; flex-wrap:wrap; width:100%;">
+        <div class="input-group">
+          <label for="precio-acrilico-70">&#128181; Precio Lámina 70cm ($):</label>
+          <input type="number" id="precio-acrilico-70" value="45000" oninput="calcularTodo()">
+        </div>
+        <div class="input-group">
+          <label for="precio-acrilico-100">&#128181; Precio Lámina 100cm ($):</label>
+          <input type="number" id="precio-acrilico-100" value="65000" oninput="calcularTodo()">
+        </div>
+        <div class="input-group">
+          <label for="precio-acrilico-120">&#128181; Precio Lámina 120cm ($):</label>
+          <input type="number" id="precio-acrilico-120" value="80000" oninput="calcularTodo()">
+        </div>
+      </div>
+
+      <div id="box-precios-vidrio" style="display:none; gap:15px; flex:2; flex-wrap:wrap; width:100%;">
+        <div class="input-group">
+          <label for="precio-vidrio-m2">&#128181; Precio Vidrio 4mm / m² ($):</label>
+          <input type="number" id="precio-vidrio-m2" value="75000" oninput="calcularTodo()">
+        </div>
+        
+        <div class="input-group" style="min-width:200px;">
+          <label><input type="checkbox" id="check-papel" onchange="calcularTodo()"> &#127916; ¿Lleva Película / Papel?</label>
+        </div>
+
+        <div id="box-modulo-papel" style="display:none; width:100%; border-top:1px dashed var(--border); padding-top:10px; margin-top:5px;">
+          <div style="display:flex; gap:15px; flex-wrap:wrap;">
+            
+            <div class="input-group" style="min-width:260px;">
+              <label for="select-estilo-papel">&#127912; Tipo / Diseño de Película:</label>
+              <div style="display:flex; gap:8px;">
+                <select id="select-estilo-papel" onchange="sincronizarPapelSeleccionado()">
+                </select>
+                <button class="btn btn-toggle" onclick="abrirModalPapeles()" title="Añadir, editar o borrar opciones de película">
+                  &#9881; Añadir / Editar
+                </button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="select-orientacion-papel">&#128260; Instalación del Papel:</label>
+              <select id="select-orientacion-papel" onchange="calcularTodo()">
+                <option value="VERTICAL">Bajando / Normal (Vertical)</option>
+                <option value="HORIZONTAL">Atravesado / Acostado (Horizontal)</option>
+              </select>
+            </div>
+
+            <div class="input-group" style="min-width:220px;">
+              <label for="select-ancho-rollo">&#128208; Ancho Rollo Elegido (cm):</label>
+              <div style="display:flex; gap:8px;">
+                <select id="select-ancho-rollo" onchange="calcularTodo()">
+                </select>
+                <button class="btn btn-toggle" onclick="abrirModalAnchosRollo()" title="Añadir, editar o borrar anchos de rollo">
+                  &#9881; Añadir / Editar Anchos
+                </button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="precio-papel-metro">&#128181; Precio / Metro Lineal ($/m):</label>
+              <input type="number" id="precio-papel-metro" value="25000" oninput="calcularTodo()">
+            </div>
+
+            <div class="input-group" style="background:rgba(2,132,199,0.1); padding:8px 12px; border-radius:6px; border:1px solid var(--secondary); min-width:280px;">
+              <label style="color:var(--primary);">&#128161; Consumo Inteligente de Película:</label>
+              <div style="font-size:15px; font-weight:bold; color:var(--secondary);" id="txt-consumo-papel">
+                0.00 metros lineales
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANO VISUAL DE PANELES (SE DESPLIEGA AUTOMÁTICAMENTE SI HAY DESCUADRE) -->
+    <div id="box-plano-paneles" class="schema-container" style="display:none; margin-bottom:25px; border: 2px dashed var(--secondary);">
+      <h3 style="margin-top:0; font-size:15px; color:var(--primary);" id="titulo-plano-paneles">&#128208; Plano de Corte de Paneles (Descuadre Aplicado)</h3>
+      
+      <div class="no-print" style="margin-bottom:12px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center;">
+        <label style="font-size:13px; font-weight:600;">Modo Espejo:</label>
+        <select id="select-modo-espejo-panel" onchange="calcularTodo()" style="padding:6px 10px; font-size:13px; border-radius:6px; border:1px solid var(--border); background:var(--input-bg); color:var(--text);">
+          <option value="NORMAL">Normal (sin espejo)</option>
+          <option value="HORIZONTAL">Espejo Izquierda &#8596; Derecha</option>
+          <option value="VERTICAL">Espejo Arriba &#8596; Abajo</option>
+          <option value="AMBOS">Espejo Horizontal + Vertical</option>
+        </select>
+      </div>
+
+      <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+        <div id="box-panel-corrediza" style="background:rgba(0,0,0,0.02); padding:10px; border-radius:6px; border:1px solid var(--border); flex:1; min-width:220px; display:none;">
+          <h4 style="margin:5px; font-size:13px; color:var(--color-corrediza-text);">Panel Corrediza</h4>
+          <svg id="svg-panel-corrediza" viewBox="0 0 200 160" style="width:100%; max-height:140px;">
+            <polygon id="poly-panel-corr" points="40,20 160,20 160,140 40,140" fill="#bfdbfe" stroke="#1e40af" stroke-width="2"/>
+            <text x="100" y="85" font-size="11" fill="#1e40af" text-anchor="middle" font-weight="bold" id="txt-corr-dim">Corr.</text>
+          </svg>
+          <div style="font-size:11px; margin-top:5px; font-weight:bold;" id="lbl-dim-corr">Sup: 0 | Inf: 0</div>
+        </div>
+
+        <div id="box-panel-fijo" style="background:rgba(0,0,0,0.02); padding:10px; border-radius:6px; border:1px solid var(--border); flex:1; min-width:220px; display:none;">
+          <h4 style="margin:5px; font-size:13px; color:var(--color-fijo-text);">Panel Fijo</h4>
+          <svg id="svg-panel-fijo" viewBox="0 0 200 160" style="width:100%; max-height:140px;">
+            <polygon id="poly-panel-fij" points="40,20 160,20 160,140 40,140" fill="#bfdbfe" stroke="#1e40af" stroke-width="2"/>
+            <text x="100" y="85" font-size="11" fill="#1e40af" text-anchor="middle" font-weight="bold" id="txt-fij-dim">Fijo</text>
+          </svg>
+          <div style="font-size:11px; margin-top:5px; font-weight:bold;" id="lbl-dim-fij">Sup: 0 | Inf: 0</div>
+        </div>
+      </div>
+      <div class="info-card-plano" id="info-modo-corte-panel" style="margin-top:10px; text-align:center;">
+        &#8505;&#65039; Solo se muestran paneles descuadrados. La inclinación aparece únicamente en el lado del descuadre.
+      </div>
+    </div>
+
+    <table class="table-vidrios">
+      <thead>
+        <tr>
+          <th>&#129524; Panel</th>
+          <th>&#9881; Fórmula / Regla Descuento</th>
+          <th>&#128208; Alto Corte (cm)</th>
+          <th>&#8596;&#65039; Ancho Sup. (cm)</th>
+          <th>&#8596;&#65039; Ancho Inf. (cm)</th>
+          <th>&#128290; Cant. x Div.</th>
+          <th>&#128230; TOTAL PANELES</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-vidrios">
+        <tr class="row-corrediza">
+          <td id="lbl-panel-corrediza">CORREDIZA</td>
+          <td contenteditable="true" class="edit-cell formula-panel" oninput="calcularTodo()">ALTO_NAVE - 3.8</td>
+          <td id="alto-corrediza">170.8</td>
+          <td id="ancho-corrediza-sup">73.2</td>
+          <td id="ancho-corrediza-inf">73.2</td>
+          <td>1</td>
+          <td class="highlight-cell" id="tot-piezas-corrediza">3 nave(s)</td>
+        </tr>
+        <tr class="row-fijo">
+          <td id="lbl-panel-fijo">FIJO</td>
+          <td contenteditable="true" class="edit-cell formula-panel" oninput="calcularTodo()">ALTO_FIJO - 3.8</td>
+          <td id="alto-fijo">171.8</td>
+          <td id="ancho-fijo-sup">70.7</td>
+          <td id="ancho-fijo-inf">70.7</td>
+          <td>1</td>
+          <td class="highlight-cell" id="tot-piezas-fijo">3 fijo(s)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 3. ACCESORIOS Y HERRAJES -->
+    <h2 style="margin-top:30px;">&#128295; 3. Accesorios, Herrajes y Complementos Totales</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>&#128221; Descripción Material / Accesorio</th>
+          <th>&#128230; Unidad</th>
+          <th>&#128290; Cant. x Div.</th>
+          <th>&#128202; Total Requerido Proyecto</th>
+          <th>&#128181; Precio Unitario ($)</th>
+          <th>&#128184; Subtotal ($)</th>
+          <th class="no-print">&#9881; Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-accesorios">
+        <tr>
+          <td contenteditable="true" class="edit-cell">RODACHINAS</td>
+          <td contenteditable="true" class="edit-cell">Unidades</td>
+          <td contenteditable="true" class="edit-cell cant-acc-unit" id="cant-rodachinas" oninput="calcularTodo()">2</td>
+          <td id="tot-acc-rodachinas" style="font-weight:bold;">6 u.</td>
+          <td><input type="number" class="precio-input-tabla precio-acc" value="3500" oninput="calcularTodo()"></td>
+          <td class="subtotal-acc">$21,000</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell">MANIJAS</td>
+          <td contenteditable="true" class="edit-cell">Unidades</td>
+          <td contenteditable="true" class="edit-cell cant-acc-unit" id="cant-manijas" oninput="calcularTodo()">1</td>
+          <td id="tot-acc-manijas" style="font-weight:bold;">3 u.</td>
+          <td><input type="number" class="precio-input-tabla precio-acc" value="8000" oninput="calcularTodo()"></td>
+          <td class="subtotal-acc">$24,000</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell">REMACHES</td>
+          <td contenteditable="true" class="edit-cell">Unidades</td>
+          <td contenteditable="true" class="edit-cell cant-acc-unit" id="cant-remaches" oninput="calcularTodo()">49</td>
+          <td id="tot-acc-remaches" style="font-weight:bold;">147 u.</td>
+          <td><input type="number" class="precio-input-tabla precio-acc" value="100" oninput="calcularTodo()"></td>
+          <td class="subtotal-acc">$14,700</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell">TORNILLOS 8X1/2 GOLOSO</td>
+          <td contenteditable="true" class="edit-cell">Unidades</td>
+          <td contenteditable="true" class="edit-cell cant-acc-unit" id="cant-tornillos" oninput="calcularTodo()">8</td>
+          <td id="tot-acc-tornillos" style="font-weight:bold;">24 u.</td>
+          <td><input type="number" class="precio-input-tabla precio-acc" value="150" oninput="calcularTodo()"></td>
+          <td class="subtotal-acc">$3,600</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell">EMPAQUE X METRO</td>
+          <td contenteditable="true" class="edit-cell">Metros</td>
+          <td contenteditable="true" class="edit-cell cant-acc-unit" id="cant-empaque" oninput="calcularTodo()">0</td>
+          <td id="tot-acc-empaque" style="font-weight:bold;">30.10 m.</td>
+          <td><input type="number" class="precio-input-tabla precio-acc" value="1200" oninput="calcularTodo()"></td>
+          <td class="subtotal-acc">$36,122</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary no-print" onclick="agregarAccesorio()">&#10133; Añadir Accesorio / Material Nuevo</button>
+
+    <!-- 4. CUADRO INDEPENDIENTE DE COSTOS DE PERFILES DE ALUMINIO -->
+    <h2 style="margin-top:40px;">&#128202; 4. Cálculo y Costos de Tiras de Aluminio (600 cm)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>&#128221; Descripción Perfil</th>
+          <th>&#128208; Longitud Total Cortada (cm)</th>
+          <th>&#128230; Tiras Requeridas (600cm)</th>
+          <th>&#9881; Modalidad de Cobro</th>
+          <th>&#128181; Precio Tira ($)</th>
+          <th>&#128184; Subtotal ($)</th>
+          <th class="no-print">&#9881; Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-costos-aluminio">
+        <tr data-perfil-costo="CABEZAL">
+          <td><b>CABEZAL</b></td>
+          <td class="costo-long-cm">0.0 cm</td>
+          <td class="costo-tiras-txt">0 tira(s)</td>
+          <td>
+            <select class="costo-modo-select" onchange="calcularTodo()" style="font-size:12px; padding:4px;">
+              <option value="PROPORCIONAL">Proporcional (Regla Taller)</option>
+              <option value="COMPLETA">Tiras Completas 600cm</option>
+            </select>
+          </td>
+          <td><input type="number" class="precio-input-tabla precio-aluminio-val" value="45000" oninput="calcularTodo()"></td>
+          <td class="subtotal-aluminio-item">$0</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFilaCosto(this)">&#10060;</button></td>
+        </tr>
+        <tr data-perfil-costo="CARRILERA">
+          <td><b>CARRILERA</b></td>
+          <td class="costo-long-cm">0.0 cm</td>
+          <td class="costo-tiras-txt">0 tira(s)</td>
+          <td>
+            <select class="costo-modo-select" onchange="calcularTodo()" style="font-size:12px; padding:4px;">
+              <option value="PROPORCIONAL">Proporcional (Regla Taller)</option>
+              <option value="COMPLETA">Tiras Completas 600cm</option>
+            </select>
+          </td>
+          <td><input type="number" class="precio-input-tabla precio-aluminio-val" value="42000" oninput="calcularTodo()"></td>
+          <td class="subtotal-aluminio-item">$0</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFilaCosto(this)">&#10060;</button></td>
+        </tr>
+        <tr data-perfil-costo="JAMBA">
+          <td><b>JAMBA</b></td>
+          <td class="costo-long-cm">0.0 cm</td>
+          <td class="costo-tiras-txt">0 tira(s)</td>
+          <td>
+            <select class="costo-modo-select" onchange="calcularTodo()" style="font-size:12px; padding:4px;">
+              <option value="PROPORCIONAL">Proporcional (Regla Taller)</option>
+              <option value="COMPLETA">Tiras Completas 600cm</option>
+            </select>
+          </td>
+          <td><input type="number" class="precio-input-tabla precio-aluminio-val" value="38000" oninput="calcularTodo()"></td>
+          <td class="subtotal-aluminio-item">$0</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFilaCosto(this)">&#10060;</button></td>
+        </tr>
+        <tr data-perfil-costo="PERFIL U325">
+          <td><b>PERFIL U325</b></td>
+          <td class="costo-long-cm">0.0 cm</td>
+          <td class="costo-tiras-txt">0 tira(s)</td>
+          <td>
+            <select class="costo-modo-select" onchange="calcularTodo()" style="font-size:12px; padding:4px;">
+              <option value="PROPORCIONAL">Proporcional (Regla Taller)</option>
+              <option value="COMPLETA">Tiras Completas 600cm</option>
+            </select>
+          </td>
+          <td><input type="number" class="precio-input-tabla precio-aluminio-val" value="35000" oninput="calcularTodo()"></td>
+          <td class="subtotal-aluminio-item">$0</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFilaCosto(this)">&#10060;</button></td>
+        </tr>
+        <tr data-perfil-costo="BARRA TOALLERO">
+          <td><b>BARRA TOALLERO</b></td>
+          <td class="costo-long-cm">0.0 cm</td>
+          <td class="costo-tiras-txt">0 tira(s)</td>
+          <td>
+            <select class="costo-modo-select" onchange="calcularTodo()" style="font-size:12px; padding:4px;">
+              <option value="PROPORCIONAL">Proporcional (Regla Taller)</option>
+              <option value="COMPLETA">Tiras Completas 600cm</option>
+            </select>
+          </td>
+          <td><input type="number" class="precio-input-tabla precio-aluminio-val" value="28000" oninput="calcularTodo()"></td>
+          <td class="subtotal-aluminio-item">$0</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFilaCosto(this)">&#10060;</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary no-print" onclick="agregarPerfilCostoAluminio()">&#10133; Añadir Perfil al Cálculo</button>
+
+    <!-- 5. PANEL VERTICAL DETALLADO DE COSTOS -->
+    <div class="vertical-cost-panel">
+      <h3 style="margin-top:0; color:var(--primary); text-align:center; border-bottom:2px solid var(--secondary); padding-bottom:10px;">
+        &#128184; Liquidación Final de Materiales (<span id="txt-divs-res-num">3</span> División(es))
+      </h3>
+
+      <div class="cost-row">
+        <span>&#128736; Subtotal Aluminio:</span>
+        <strong id="res-subtotal-aluminio">$0</strong>
+      </div>
+
+      <div class="cost-row">
+        <span>&#128295; Subtotal Herrajes & Accesorios:</span>
+        <strong id="res-subtotal-accesorios">$0</strong>
+      </div>
+
+      <div class="cost-row">
+        <span>&#129524; Subtotal Paneles (<span id="txt-tipo-panel">Acrílico</span>):</span>
+        <strong id="res-subtotal-paneles">$0</strong>
+      </div>
+
+      <div class="cost-row" id="row-detalle-acrilicos" style="font-size:13px; color:var(--text); opacity:0.8; padding-left:15px;">
+        <span id="txt-detalle-acrilico-lamina">Optimización de láminas</span>
+      </div>
+
+      <div class="cost-row" id="row-costo-papel" style="display:none;">
+        <span>&#127916; Película / Papel (<span id="txt-metros-papel-res">0m</span>):</span>
+        <strong id="res-subtotal-papel">$0</strong>
+      </div>
+
+      <div class="cost-row total-final">
+        <span>&#128181; GRAN TOTAL MATERIALES:</span>
+        <span id="res-gran-total">$0</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; text-align: center; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;" class="no-print">
+      <button class="btn btn-primary" onclick="calcularTodo()">&#128260; Recalcular Fórmulas</button>
+      <button class="btn btn-success" onclick="exportarPDF()">&#128196; Exportar a PDF</button>
+      <button class="btn btn-toggle" onclick="imprimirPagina()">&#128424;&#65039; Imprimir</button>
+      <button class="btn btn-success" onclick="guardarProyecto()" style="background:#059669;">&#128190; Guardar Proyecto</button>
+      <button class="btn btn-primary" onclick="abrirProyecto()" style="background:#0284c7;">&#128194; Abrir Proyecto</button>
+      <button class="btn btn-toggle" onclick="guardarDatosMemoria()">&#128204; Guardar Config</button>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 2: CONFIGURACIÓN DEL PLANO -->
+  <div id="tab-plano-config" class="tab-content">
+    <h2>&#128444; Configuración de Hojas (Fijo vs. Corrediza)</h2>
+    <p>Selecciona la ubicación del cuerpo fijo y la dirección de apertura de la hoja corrediza:</p>
+    
+    <div style="max-width: 500px; display: flex; flex-direction: column; gap: 15px;" class="inputs-section">
+      <div class="input-group">
+        <label for="select-lado-fijo">&#128205; ¿Qué lado es el CUERPO FIJO?</label>
+        <select id="select-lado-fijo" onchange="actualizarConfigPlano()">
+          <option value="IZQUIERDA">Izquierda (Fijo Izq - Corrediza Der)</option>
+          <option value="DERECHA">Derecha (Corrediza Izq - Fijo Der)</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="select-sentido-flecha">&#8596;&#65039; Sentido de Apertura de la Corrediza:</label>
+        <select id="select-sentido-flecha" onchange="actualizarConfigPlano()">
+          <option value="DERECHA">Abre hacia la DERECHA (--&gt;)</option>
+          <option value="IZQUIERDA">Abre hacia la IZQUIERDA (&lt;--)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 3: CATÁLOGO EDITABLE DE ALUMINIO -->
+  <div id="tab-colores" class="tab-content">
+    <h2>&#127912; Catálogo de Colores de Perfiles de Aluminio</h2>
+    <div class="input-group" style="max-width:350px; margin-bottom:20px;">
+      <label for="select-color-aluminio-activo">&#10024; Color de Aluminio Activo para la Orden:</label>
+      <select id="select-color-aluminio-activo" onchange="calcularTodo()">
+      </select>
+    </div>
+
+    <table style="max-width: 600px;">
+      <thead>
+        <tr>
+          <th>&#127912; Nombre del Color / Acabado</th>
+          <th>&#127991; Código / Referencia</th>
+          <th class="no-print">&#9881; Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-colores">
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Aluminio Mate / Natural</td>
+          <td contenteditable="true" class="edit-cell">MAT-01</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Blanco Pintura Electrostática</td>
+          <td contenteditable="true" class="edit-cell">BLA-02</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Negro Anodizado / Mate</td>
+          <td contenteditable="true" class="edit-cell">NEG-03</td>
+          <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary no-print" onclick="agregarColor()">&#10133; Añadir Nuevo Color de Aluminio</button>
+  </div>
+
+</div>
+
+<!-- MODAL FLOTANTE PARA GESTIONAR ACRÍLICOS -->
+<div class="modal-overlay" id="modal-acrilicos">
+  <div class="modal-content">
+    <h2 style="margin-top:0; color:var(--primary);">&#129524; Administrar Catálogo de Acrílicos</h2>
+    <p style="font-size:13px; color:var(--text); opacity:0.8;">Agrega, modifica o elimina las opciones de acrílico:</p>
+
+    <table style="width:100%; margin-bottom:15px;">
+      <thead>
+        <tr>
+          <th>&#128221; Tipo / Estilo de Acrílico</th>
+          <th>&#127912; Color / Acabado</th>
+          <th>&#9881; Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-acrilicos-catalogo">
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Acrílico Chino / Burbuja</td>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Humo</td>
+          <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Acrílico Piel de Durazno</td>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Transparente</td>
+          <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Acrílico Tipo Cristal / Liso</td>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Transparente</td>
+          <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <button class="btn btn-primary" onclick="agregarAcrilicoCatalogo()">&#10133; Añadir Nuevo Acrílico</button>
+      <button class="btn btn-success" onclick="cerrarModalAcrilicos()">&#128190; Guardar y Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FLOTANTE PARA GESTIONAR PELÍCULAS / PAPELES -->
+<div class="modal-overlay" id="modal-papeles">
+  <div class="modal-content">
+    <h2 style="margin-top:0; color:var(--primary);">&#127916; Administrar Películas / Papeles de Vidrio</h2>
+    <p style="font-size:13px; color:var(--text); opacity:0.8;">Agrega, edita o elimina tipos de película:</p>
+
+    <table style="width:100%; margin-bottom:15px;">
+      <thead>
+        <tr>
+          <th>&#128221; Nombre / Tipo de Película</th>
+          <th>&#128208; Ancho Rollo Predeterminado (cm)</th>
+          <th>&#128181; Precio Metro Lineal ($/m)</th>
+          <th>&#9881; Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-papeles-catalogo">
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Esmery / Pavonado Esmerilado</td>
+          <td contenteditable="true" class="edit-cell ancho-rollo-val" oninput="sincronizarCatalogos()">122</td>
+          <td contenteditable="true" class="edit-cell precio-mlineal-val" oninput="sincronizarCatalogos()">25000</td>
+          <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Rayas Horizontales Frost</td>
+          <td contenteditable="true" class="edit-cell ancho-rollo-val" oninput="sincronizarCatalogos()">122</td>
+          <td contenteditable="true" class="edit-cell precio-mlineal-val" oninput="sincronizarCatalogos()">28000</td>
+          <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Película de Seguridad Transparente 4mils</td>
+          <td contenteditable="true" class="edit-cell ancho-rollo-val" oninput="sincronizarCatalogos()">152</td>
+          <td contenteditable="true" class="edit-cell precio-mlineal-val" oninput="sincronizarCatalogos()">35000</td>
+          <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <button class="btn btn-primary" onclick="agregarPapelCatalogo()">&#10133; Añadir Nueva Película</button>
+      <button class="btn btn-success" onclick="cerrarModalPapeles()">&#128190; Guardar y Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FLOTANTE PARA GESTIONAR ANCHOS DE ROLLO -->
+<div class="modal-overlay" id="modal-anchos-rollo">
+  <div class="modal-content" style="max-width:500px;">
+    <h2 style="margin-top:0; color:var(--primary);">&#128208; Administrar Anchos de Rollo Disponibles</h2>
+    <p style="font-size:13px; color:var(--text); opacity:0.8;">Agrega, edita o elimina las medidas de ancho de rollo comercial (en cm):</p>
+
+    <table style="width:100%; margin-bottom:15px;">
+      <thead>
+        <tr>
+          <th>&#128208; Ancho de Rollo Comercial (cm)</th>
+          <th>&#9881; Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-anchos-catalogo">
+        <tr>
+          <td contenteditable="true" class="edit-cell val-ancho-cm" oninput="sincronizarCatalogos()">122</td>
+          <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+        <tr>
+          <td contenteditable="true" class="edit-cell val-ancho-cm" oninput="sincronizarCatalogos()">152</td>
+          <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <button class="btn btn-primary" onclick="agregarAnchoRolloCatalogo()">&#10133; Añadir Nueva Medida</button>
+      <button class="btn btn-success" onclick="cerrarModalAnchosRollo()">&#128190; Guardar y Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let isLocked = false;
+let catalogoPapelesMapa = {};
+let catalogoAnchosRolloList = [122, 152];
+
+// Sistema de páginas independientes (cada división es un proyecto separado)
+let paginasDivisiones = [];
+let paginaActualIdx = 0;
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+  const tabEl = document.getElementById(tabId);
+  if (tabEl) tabEl.classList.add('active');
+
+  // Activar el botón correspondiente (también cuando se llama por código, sin event)
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const onclickAttr = btn.getAttribute('onclick') || '';
+    if (onclickAttr.includes("'" + tabId + "'") || onclickAttr.includes('"' + tabId + '"')) {
+      btn.classList.add('active');
+    }
+  });
+  if (typeof event !== 'undefined' && event && event.currentTarget && event.currentTarget.classList) {
+    event.currentTarget.classList.add('active');
+  }
+}
+
+function abrirModalAcrilicos() { document.getElementById('modal-acrilicos').style.display = 'flex'; }
+function cerrarModalAcrilicos() { document.getElementById('modal-acrilicos').style.display = 'none'; sincronizarCatalogos(); }
+
+function abrirModalPapeles() { document.getElementById('modal-papeles').style.display = 'flex'; }
+function cerrarModalPapeles() { document.getElementById('modal-papeles').style.display = 'none'; sincronizarCatalogos(); }
+
+function abrirModalAnchosRollo() { document.getElementById('modal-anchos-rollo').style.display = 'flex'; }
+function cerrarModalAnchosRollo() { document.getElementById('modal-anchos-rollo').style.display = 'none'; sincronizarCatalogos(); }
+
+function chequearDescuadreAncho() {
+  const inf = parseFloat(document.getElementById('ancho-inferior').value) || 0;
+  const sup = parseFloat(document.getElementById('ancho-superior').value) || 0;
+  const boxDesc = document.getElementById('box-config-descuadre-ancho');
+
+  if (inf !== sup) {
+    boxDesc.style.display = 'flex';
+  } else {
+    boxDesc.style.display = 'none';
+  }
+}
+
+function controlarIgnorarDescuadre() {
+  const ignorar = document.getElementById('check-ignorar-descuadre').checked;
+  const boxDetalles = document.getElementById('box-detalles-descuadre');
+  if (ignorar) {
+    boxDetalles.style.display = 'none';
+  } else {
+    boxDetalles.style.display = 'flex';
+  }
+}
+
+function actualizarCamposDescuadre() {
+  const ubicacion = document.getElementById('select-ubicacion-descuadre-ancho').value;
+  const groupAmbos = document.getElementById('group-desc-ambos-detalles');
+
+  if (ubicacion === 'AMBOS LADOS') {
+    groupAmbos.style.display = 'block';
+  } else {
+    groupAmbos.style.display = 'none';
+  }
+}
+
+function toggleLock() {
+  isLocked = !isLocked;
+  const cells = document.querySelectorAll('.edit-cell');
+  const btn = document.getElementById('btn-lock');
+  const label = document.getElementById('lock-label');
+
+  cells.forEach(cell => {
+    if (isLocked) {
+      cell.setAttribute('contenteditable', 'false');
+      cell.classList.add('locked');
+    } else {
+      cell.setAttribute('contenteditable', 'true');
+      cell.classList.remove('locked');
+    }
+  });
+
+  if (isLocked) {
+    btn.className = "btn btn-danger";
+    label.textContent = "Celdas Bloqueadas";
+    btn.innerHTML = "&#128274; <span id='lock-label'>Celdas Bloqueadas</span>";
+  } else {
+    btn.className = "btn btn-toggle";
+    label.textContent = "Edición Activada";
+    btn.innerHTML = "&#128275; <span id='lock-label'>Edición Activada</span>";
+  }
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  document.documentElement.classList.toggle('dark-mode');
+  const label = document.getElementById('theme-label');
+  const isDark = document.body.classList.contains('dark-mode');
+  label.textContent = isDark ? "Modo Claro" : "Modo Oscuro";
+  if (event && event.currentTarget) {
+    event.currentTarget.innerHTML = isDark ? "&#9728; <span id='theme-label'>Modo Claro</span>" : "&#127783; <span id='theme-label'>Modo Oscuro</span>";
+  }
+}
+
+function formatearCOP(val) {
+  return '$' + Math.round(val).toLocaleString('es-CO');
+}
+
+function capturarEstadoCompleto() {
+  guardarPaginaActual();
+
+  const despiece = [];
+  document.querySelectorAll('#tabla-despiece-aluminio tr').forEach(tr => {
+    const celdas = tr.children;
+    despiece.push({
+      desc: celdas[0] ? celdas[0].textContent.trim() : '',
+      formula: tr.querySelector('.formula-val') ? tr.querySelector('.formula-val').textContent.trim() : '',
+      cant: tr.querySelector('.cant-val') ? tr.querySelector('.cant-val').textContent.trim() : '1',
+      clase: tr.className || '',
+      grupo: tr.getAttribute('data-perfil-grupo') || ''
+    });
+  });
+
+  const accesorios = [];
+  document.querySelectorAll('#tabla-accesorios tr').forEach(tr => {
+    const celdas = tr.children;
+    accesorios.push({
+      desc: celdas[0] ? celdas[0].textContent.trim() : '',
+      unidad: celdas[1] ? celdas[1].textContent.trim() : 'Unidades',
+      cant: tr.querySelector('.cant-acc-unit') ? tr.querySelector('.cant-acc-unit').textContent.trim() : '0',
+      precio: tr.querySelector('.precio-acc') ? tr.querySelector('.precio-acc').value : '0'
+    });
+  });
+
+  const costosAluminio = [];
+  document.querySelectorAll('#tabla-costos-aluminio tr').forEach(tr => {
+    costosAluminio.push({
+      nombre: (tr.querySelector('td b') || tr.children[0]).textContent.trim(),
+      modo: tr.querySelector('.costo-modo-select') ? tr.querySelector('.costo-modo-select').value : 'PROPORCIONAL',
+      precio: tr.querySelector('.precio-aluminio-val') ? tr.querySelector('.precio-aluminio-val').value : '0'
+    });
+  });
+
+  const colores = [];
+  document.querySelectorAll('#tabla-colores tr').forEach(tr => {
+    colores.push({
+      nombre: tr.children[0] ? tr.children[0].textContent.trim() : '',
+      codigo: tr.children[1] ? tr.children[1].textContent.trim() : ''
+    });
+  });
+
+  const acrilicos = [];
+  document.querySelectorAll('#tabla-acrilicos-catalogo tr').forEach(tr => {
+    acrilicos.push({
+      tipo: tr.children[0] ? tr.children[0].textContent.trim() : '',
+      color: tr.children[1] ? tr.children[1].textContent.trim() : ''
+    });
+  });
+
+  const papeles = [];
+  document.querySelectorAll('#tabla-papeles-catalogo tr').forEach(tr => {
+    papeles.push({
+      nombre: tr.children[0] ? tr.children[0].textContent.trim() : '',
+      ancho: tr.querySelector('.ancho-rollo-val') ? tr.querySelector('.ancho-rollo-val').textContent.trim() : '122',
+      precio: tr.querySelector('.precio-mlineal-val') ? tr.querySelector('.precio-mlineal-val').textContent.trim() : '25000'
+    });
+  });
+
+  const anchosRollo = [];
+  document.querySelectorAll('#tabla-anchos-catalogo tr').forEach(tr => {
+    const v = tr.querySelector('.val-ancho-cm');
+    if (v) anchosRollo.push(v.textContent.trim());
+  });
+
+  const formulasPanel = [];
+  document.querySelectorAll('#tabla-vidrios tr').forEach(tr => {
+    formulasPanel.push({
+      desc: tr.children[0] ? tr.children[0].textContent.trim() : '',
+      formula: tr.querySelector('.formula-panel') ? tr.querySelector('.formula-panel').textContent.trim() : ''
+    });
+  });
+
+  return {
+    version: 2,
+    fecha: new Date().toISOString(),
+    paginas: JSON.parse(JSON.stringify(paginasDivisiones)),
+    paginaActualIdx: paginaActualIdx,
+    inputs: {
+      alto: document.getElementById('alto').value,
+      anchoInf: document.getElementById('ancho-inferior').value,
+      anchoSup: document.getElementById('ancho-superior').value,
+      cantidad: document.getElementById('cantidad').value,
+      tipoMaterial: document.getElementById('tipo-material-panel').value,
+      pAcrilico70: document.getElementById('precio-acrilico-70').value,
+      pAcrilico100: document.getElementById('precio-acrilico-100').value,
+      pAcrilico120: document.getElementById('precio-acrilico-120').value,
+      pVidrioM2: document.getElementById('precio-vidrio-m2').value,
+      pPapelMetro: document.getElementById('precio-papel-metro').value,
+      llevaPapel: document.getElementById('check-papel').checked,
+      ignorarDescuadre: document.getElementById('check-ignorar-descuadre').checked,
+      ubicacionDescuadre: document.getElementById('select-ubicacion-descuadre-ancho').value,
+      descIzq: document.getElementById('valor-descuadre-izq') ? document.getElementById('valor-descuadre-izq').value : '1',
+      descDer: document.getElementById('valor-descuadre-der') ? document.getElementById('valor-descuadre-der').value : '2',
+      ambosIzqUb: document.getElementById('select-ambos-izq-ubicacion') ? document.getElementById('select-ambos-izq-ubicacion').value : 'ARRIBA',
+      ambosDerUb: document.getElementById('select-ambos-der-ubicacion') ? document.getElementById('select-ambos-der-ubicacion').value : 'ABAJO',
+      ladoFijo: document.getElementById('select-lado-fijo').value,
+      sentidoFlecha: document.getElementById('select-sentido-flecha').value,
+      colorAluminio: document.getElementById('select-color-aluminio-activo').value,
+      estiloAcrilico: document.getElementById('select-estilo-acrilico').value,
+      estiloPapel: document.getElementById('select-estilo-papel').value,
+      orientacionPapel: document.getElementById('select-orientacion-papel').value,
+      anchoRollo: document.getElementById('select-ancho-rollo').value,
+      modoEspejo: document.getElementById('select-modo-espejo-panel') ? document.getElementById('select-modo-espejo-panel').value : 'NORMAL',
+      darkMode: document.body.classList.contains('dark-mode')
+    },
+    despiece,
+    accesorios,
+    costosAluminio,
+    colores,
+    acrilicos,
+    papeles,
+    anchosRollo,
+    formulasPanel
+  };
+}
+
+function aplicarEstadoCompleto(data) {
+  if (!data) return;
+
+  if (data.paginas && Array.isArray(data.paginas) && data.paginas.length > 0) {
+    paginasDivisiones = data.paginas;
+    paginaActualIdx = Math.min(data.paginaActualIdx || 0, paginasDivisiones.length - 1);
+  }
+
+  const inp = data.inputs || data;
+  if (inp.alto != null) document.getElementById('alto').value = inp.alto;
+  if (inp.anchoInf != null) document.getElementById('ancho-inferior').value = inp.anchoInf;
+  if (inp.anchoSup != null) document.getElementById('ancho-superior').value = inp.anchoSup;
+  if (inp.cantidad != null) document.getElementById('cantidad').value = inp.cantidad;
+  if (inp.tipoMaterial != null) document.getElementById('tipo-material-panel').value = inp.tipoMaterial;
+  if (inp.pAcrilico70 != null) document.getElementById('precio-acrilico-70').value = inp.pAcrilico70;
+  if (inp.pAcrilico100 != null) document.getElementById('precio-acrilico-100').value = inp.pAcrilico100;
+  if (inp.pAcrilico120 != null) document.getElementById('precio-acrilico-120').value = inp.pAcrilico120;
+  if (inp.pVidrioM2 != null) document.getElementById('precio-vidrio-m2').value = inp.pVidrioM2;
+  if (inp.pPapelMetro != null) document.getElementById('precio-papel-metro').value = inp.pPapelMetro;
+  if (inp.llevaPapel !== undefined) document.getElementById('check-papel').checked = !!inp.llevaPapel;
+  if (inp.ignorarDescuadre !== undefined) document.getElementById('check-ignorar-descuadre').checked = !!inp.ignorarDescuadre;
+  if (inp.ubicacionDescuadre) document.getElementById('select-ubicacion-descuadre-ancho').value = inp.ubicacionDescuadre;
+  if (inp.descIzq != null && document.getElementById('valor-descuadre-izq')) document.getElementById('valor-descuadre-izq').value = inp.descIzq;
+  if (inp.descDer != null && document.getElementById('valor-descuadre-der')) document.getElementById('valor-descuadre-der').value = inp.descDer;
+  if (inp.ambosIzqUb && document.getElementById('select-ambos-izq-ubicacion')) document.getElementById('select-ambos-izq-ubicacion').value = inp.ambosIzqUb;
+  if (inp.ambosDerUb && document.getElementById('select-ambos-der-ubicacion')) document.getElementById('select-ambos-der-ubicacion').value = inp.ambosDerUb;
+  if (inp.ladoFijo) document.getElementById('select-lado-fijo').value = inp.ladoFijo;
+  if (inp.sentidoFlecha) document.getElementById('select-sentido-flecha').value = inp.sentidoFlecha;
+  if (inp.modoEspejo && document.getElementById('select-modo-espejo-panel')) document.getElementById('select-modo-espejo-panel').value = inp.modoEspejo;
+  if (inp.orientacionPapel) document.getElementById('select-orientacion-papel').value = inp.orientacionPapel;
+  if (inp.darkMode) {
+    document.body.classList.add('dark-mode');
+    document.documentElement.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+    document.documentElement.classList.remove('dark-mode');
+  }
+  const themeLabel = document.getElementById('theme-label');
+  if (themeLabel) themeLabel.textContent = document.body.classList.contains('dark-mode') ? 'Modo Claro' : 'Modo Oscuro';
+
+  if (data.despiece && Array.isArray(data.despiece) && data.despiece.length > 0) {
+    const tbody = document.getElementById('tabla-despiece-aluminio');
+    tbody.innerHTML = '';
+    data.despiece.forEach(item => {
+      const tr = document.createElement('tr');
+      if (item.clase) tr.className = item.clase;
+      if (item.grupo) tr.setAttribute('data-perfil-grupo', item.grupo);
+      tr.innerHTML = `
+        <td contenteditable="true" class="edit-cell">${item.desc || 'PERFIL'}</td>
+        <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">${item.formula || 'ALTO'}</td>
+        <td>0.0</td>
+        <td>0.0</td>
+        <td contenteditable="true" class="edit-cell cant-val" oninput="calcularTodo()">${item.cant || '1'}</td>
+        <td class="highlight-cell">0 pedazo(s)</td>
+        <td>0.0 cm</td>
+        <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (data.accesorios && Array.isArray(data.accesorios) && data.accesorios.length > 0) {
+    const tbody = document.getElementById('tabla-accesorios');
+    tbody.innerHTML = '';
+    data.accesorios.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td contenteditable="true" class="edit-cell">${item.desc || 'ACCESORIO'}</td>
+        <td contenteditable="true" class="edit-cell">${item.unidad || 'Unidades'}</td>
+        <td contenteditable="true" class="edit-cell cant-acc-unit" oninput="calcularTodo()">${item.cant || '0'}</td>
+        <td style="font-weight:bold;">0</td>
+        <td><input type="number" class="precio-input-tabla precio-acc" value="${item.precio || 0}" oninput="calcularTodo()"></td>
+        <td class="subtotal-acc">$0</td>
+        <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (data.costosAluminio && Array.isArray(data.costosAluminio) && data.costosAluminio.length > 0) {
+    const tbody = document.getElementById('tabla-costos-aluminio');
+    tbody.innerHTML = '';
+    data.costosAluminio.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-perfil-costo', item.nombre);
+      tr.innerHTML = `
+        <td><b>${item.nombre}</b></td>
+        <td class="costo-long-cm">0.0 cm</td>
+        <td class="costo-tiras-txt">0 tira(s)</td>
+        <td>
+          <select class="costo-modo-select" onchange="calcularTodo()" style="font-size:12px; padding:4px;">
+            <option value="PROPORCIONAL" ${item.modo === 'PROPORCIONAL' ? 'selected' : ''}>Proporcional (Regla Taller)</option>
+            <option value="COMPLETA" ${item.modo === 'COMPLETA' ? 'selected' : ''}>Tiras Completas 600cm</option>
+          </select>
+        </td>
+        <td><input type="number" class="precio-input-tabla precio-aluminio-val" value="${item.precio}" oninput="calcularTodo()"></td>
+        <td class="subtotal-aluminio-item">$0</td>
+        <td class="no-print"><button class="btn btn-danger" onclick="eliminarFilaCosto(this)">&#10060;</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (data.colores && Array.isArray(data.colores) && data.colores.length > 0) {
+    const tbody = document.getElementById('tabla-colores');
+    tbody.innerHTML = '';
+    data.colores.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">${item.nombre || ''}</td>
+        <td contenteditable="true" class="edit-cell">${item.codigo || ''}</td>
+        <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (data.acrilicos && Array.isArray(data.acrilicos) && data.acrilicos.length > 0) {
+    const tbody = document.getElementById('tabla-acrilicos-catalogo');
+    tbody.innerHTML = '';
+    data.acrilicos.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">${item.tipo || ''}</td>
+        <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">${item.color || ''}</td>
+        <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (data.papeles && Array.isArray(data.papeles) && data.papeles.length > 0) {
+    const tbody = document.getElementById('tabla-papeles-catalogo');
+    tbody.innerHTML = '';
+    data.papeles.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">${item.nombre || ''}</td>
+        <td contenteditable="true" class="edit-cell ancho-rollo-val" oninput="sincronizarCatalogos()">${item.ancho || '122'}</td>
+        <td contenteditable="true" class="edit-cell precio-mlineal-val" oninput="sincronizarCatalogos()">${item.precio || '25000'}</td>
+        <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (data.anchosRollo && Array.isArray(data.anchosRollo) && data.anchosRollo.length > 0) {
+    const tbody = document.getElementById('tabla-anchos-catalogo');
+    tbody.innerHTML = '';
+    data.anchosRollo.forEach(a => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td contenteditable="true" class="edit-cell val-ancho-cm" oninput="sincronizarCatalogos()">${a}</td>
+        <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (data.formulasPanel && Array.isArray(data.formulasPanel)) {
+    const filas = document.querySelectorAll('#tabla-vidrios tr');
+    data.formulasPanel.forEach((item, i) => {
+      if (filas[i]) {
+        const formulaCell = filas[i].querySelector('.formula-panel');
+        if (formulaCell && item.formula) formulaCell.textContent = item.formula;
+      }
+    });
+  }
+
+  sincronizarCatalogos();
+  if (inp.colorAluminio) {
+    const sel = document.getElementById('select-color-aluminio-activo');
+    if ([...sel.options].some(o => o.value === inp.colorAluminio)) sel.value = inp.colorAluminio;
+  }
+  if (inp.estiloAcrilico) {
+    const sel = document.getElementById('select-estilo-acrilico');
+    if ([...sel.options].some(o => o.value === inp.estiloAcrilico)) sel.value = inp.estiloAcrilico;
+  }
+  if (inp.estiloPapel) {
+    const sel = document.getElementById('select-estilo-papel');
+    if ([...sel.options].some(o => o.value === inp.estiloPapel)) sel.value = inp.estiloPapel;
+  }
+  if (inp.anchoRollo) {
+    const sel = document.getElementById('select-ancho-rollo');
+    if ([...sel.options].some(o => o.value === String(inp.anchoRollo))) sel.value = String(inp.anchoRollo);
+  }
+
+  controlarIgnorarDescuadre();
+  actualizarCamposDescuadre();
+  chequearDescuadreAncho();
+  renderBarraPaginas();
+  actualizarConfigPlano();
+  calcularTodo();
+}
+
+function guardarDatosMemoria() {
+  try {
+    const estado = capturarEstadoCompleto();
+    localStorage.setItem('cotizador_banos_data', JSON.stringify(estado));
+    alert('&#9989; Configuración guardada en este navegador.\n(Usa «Guardar Proyecto» para descargar un archivo y abrirlo en otro equipo.)');
+  } catch (e) {
+    alert('Error al guardar: ' + e.message);
+  }
+}
+
+function cargarDatosMemoria() {
+  const guardado = localStorage.getItem('cotizador_banos_data');
+  if (!guardado) return;
+  try {
+    const data = JSON.parse(guardado);
+    if (data.version || data.paginas || data.inputs) {
+      aplicarEstadoCompleto(data);
+    } else {
+      // Compatibilidad con formato antiguo
+      if (data.alto) document.getElementById('alto').value = data.alto;
+      if (data.anchoInf) document.getElementById('ancho-inferior').value = data.anchoInf;
+      if (data.anchoSup) document.getElementById('ancho-superior').value = data.anchoSup;
+      if (data.cantidad) document.getElementById('cantidad').value = data.cantidad;
+      if (data.tipoMaterial) document.getElementById('tipo-material-panel').value = data.tipoMaterial;
+      if (data.pAcrilico70) document.getElementById('precio-acrilico-70').value = data.pAcrilico70;
+      if (data.pAcrilico100) document.getElementById('precio-acrilico-100').value = data.pAcrilico100;
+      if (data.pAcrilico120) document.getElementById('precio-acrilico-120').value = data.pAcrilico120;
+      if (data.pVidrioM2) document.getElementById('precio-vidrio-m2').value = data.pVidrioM2;
+      if (data.pPapelMetro) document.getElementById('precio-papel-metro').value = data.pPapelMetro;
+      if (data.llevaPapel !== undefined) document.getElementById('check-papel').checked = data.llevaPapel;
+      if (data.costosAluminio && Array.isArray(data.costosAluminio)) {
+        aplicarEstadoCompleto({ costosAluminio: data.costosAluminio, inputs: data });
+      }
+    }
+  } catch (e) {
+    console.warn('No se pudo cargar config local:', e);
+  }
+}
+
+function guardarProyecto() {
+  try {
+    const estado = capturarEstadoCompleto();
+    const nombrePag = (paginasDivisiones[paginaActualIdx] && paginasDivisiones[paginaActualIdx].nombre) || 'Proyecto';
+    const safeName = nombrePag.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ _-]/g, '').trim().replace(/\s+/g, '_') || 'Proyecto';
+    const fecha = new Date().toISOString().slice(0, 10);
+    const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Proyecto_Division_Bano_${safeName}_${fecha}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    alert('&#9989; Proyecto descargado.\nÁbrelo después con «Abrir Proyecto».');
+  } catch (e) {
+    alert('Error al guardar proyecto: ' + e.message);
+  }
+}
+
+function abrirProyecto() {
+  const input = document.getElementById('input-abrir-proyecto');
+  if (input) {
+    input.value = '';
+    input.click();
+  }
+}
+
+function cargarProyectoDesdeArchivo(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || (typeof data !== 'object')) throw new Error('Archivo inválido');
+      aplicarEstadoCompleto(data);
+      alert('&#9989; Proyecto cargado correctamente: ' + (file.name || ''));
+    } catch (err) {
+      alert('&#10060; No se pudo abrir el proyecto.\nAsegúrate de que sea un archivo .json generado por esta app.\n\n' + err.message);
+    }
+  };
+  reader.onerror = function () {
+    alert('Error al leer el archivo.');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function imprimirPagina() {
+  switchTab('tab-despiece');
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-despiece').classList.add('active');
+  document.body.classList.add('pdf-exporting');
+  const cleanup = function () {
+    document.body.classList.remove('pdf-exporting');
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(function () {
+    window.print();
+    // Respaldo si afterprint no dispara
+    setTimeout(cleanup, 2000);
+  }, 200);
+}
+
+function svgToDataUrl(svgEl, targetHeight) {
+  if (!svgEl) return null;
+  try {
+    const clone = svgEl.cloneNode(true);
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    // Quitar límites que recortan
+    clone.style.maxHeight = 'none';
+    clone.style.width = '100%';
+    clone.style.height = (targetHeight || 320) + 'px';
+    clone.style.background = '#ffffff';
+    const vb = clone.getAttribute('viewBox') || '0 0 340 240';
+    const parts = vb.split(/[\s,]+/).map(Number);
+    const vbW = parts[2] || 340;
+    const vbH = parts[3] || 240;
+    const outH = targetHeight || 320;
+    let outW = Math.round(outH * (vbW / vbH));
+    // Limitar ancho para que en PDF no se desborde ni se desplace a la derecha
+    if (outW > 720) {
+      outW = 720;
+    }
+    clone.setAttribute('width', String(outW));
+    clone.setAttribute('height', String(outH));
+    clone.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    const serializer = new XMLSerializer();
+    let svgStr = serializer.serializeToString(clone);
+    if (!svgStr.includes('xmlns=')) {
+      svgStr = svgStr.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    // Fondo blanco para contraste profesional
+    if (!/fill="white"|fill="#fff/i.test(svgStr.substring(0, 200))) {
+      svgStr = svgStr.replace(/<svg([^>]*)>/, '<svg$1><rect width="100%" height="100%" fill="#ffffff"/>');
+    }
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+  } catch (e) {
+    console.warn('svgToDataUrl', e);
+    return null;
+  }
+}
+
+function reemplazarSvgPorImagen(svgEl, targetHeight) {
+  if (!svgEl || !svgEl.parentNode) return null;
+  const dataUrl = svgToDataUrl(svgEl, targetHeight);
+  if (!dataUrl) return null;
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.alt = 'Plano';
+  img.className = 'pdf-plano-img';
+  img.style.width = '100%';
+  img.style.maxWidth = '100%';
+  img.style.height = 'auto';
+  img.style.display = 'block';
+  img.style.margin = '0 auto';
+  img.style.background = '#ffffff';
+  img.style.border = '1px solid #cbd5e1';
+  img.style.borderRadius = '6px';
+  img.setAttribute('data-replaced-svg', svgEl.id || '');
+  svgEl.style.display = 'none';
+  svgEl.parentNode.insertBefore(img, svgEl);
+  return img;
+}
+
+function exportarPDF() {
+  if (typeof html2pdf === 'undefined') {
+    alert('No se pudo cargar la librería PDF. Revisa tu conexión a internet e intenta de nuevo.\nTambién puedes usar «Imprimir» &#8594; Guardar como PDF.');
+    return;
+  }
+
+  switchTab('tab-despiece');
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-despiece').classList.add('active');
+  calcularTodo();
+
+  document.body.classList.add('pdf-exporting');
+  const wasDark = document.body.classList.contains('dark-mode');
+  if (wasDark) document.body.classList.remove('dark-mode');
+
+  const noPrintEls = document.querySelectorAll('.no-print');
+  const prevDisplay = [];
+  noPrintEls.forEach((el, i) => {
+    prevDisplay[i] = el.style.display;
+    el.style.display = 'none';
+  });
+
+  // Convertir SVG a <img> para que html2canvas no recorte los planos
+  const svgs = [
+    { el: document.getElementById('plano-svg'), h: 360 },
+    { el: document.getElementById('svg-panel-corrediza'), h: 220 },
+    { el: document.getElementById('svg-panel-fijo'), h: 220 }
+  ];
+  const imgsCreadas = [];
+  svgs.forEach(function (item) {
+    if (item.el && item.el.offsetParent !== null || (item.el && item.el.style.display !== 'none')) {
+      // También si el contenedor del panel está visible
+      const parentBox = item.el.closest ? item.el.closest('[id^="box-panel"]') : null;
+      const visible = item.el.id === 'plano-svg' ||
+        (parentBox && parentBox.style.display !== 'none' && document.getElementById('box-plano-paneles') &&
+          document.getElementById('box-plano-paneles').style.display !== 'none');
+      if (item.el.id === 'plano-svg' || visible) {
+        const img = reemplazarSvgPorImagen(item.el, item.h);
+        if (img) imgsCreadas.push({ img: img, svg: item.el });
+      }
+    }
+  });
+  // Forzar también paneles si el box está visible
+  const boxPaneles = document.getElementById('box-plano-paneles');
+  if (boxPaneles && boxPaneles.style.display !== 'none') {
+    ['svg-panel-corrediza', 'svg-panel-fijo'].forEach(function (id) {
+      const svg = document.getElementById(id);
+      if (svg && !imgsCreadas.some(function (x) { return x.svg === svg; })) {
+        const box = svg.closest('[id^="box-panel"]');
+        if (box && box.style.display !== 'none') {
+          const img = reemplazarSvgPorImagen(svg, 220);
+          if (img) imgsCreadas.push({ img: img, svg: svg });
+        }
+      }
+    });
+  }
+
+  const element = document.getElementById('pdf-export-container');
+  const nombrePag = (paginasDivisiones[paginaActualIdx] && paginasDivisiones[paginaActualIdx].nombre) || 'Cotizacion';
+  const safeName = nombrePag.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ _-]/g, '').trim().replace(/\s+/g, '_') || 'Cotizacion';
+
+  // Evitar desplazamiento: quitar padding/márgenes del body y del contenedor durante la captura
+  const prevStyles = {
+    bodyPadding: document.body.style.padding,
+    bodyMargin: document.body.style.margin,
+    elMargin: element.style.margin,
+    elMaxWidth: element.style.maxWidth,
+    elWidth: element.style.width,
+    elPadding: element.style.padding,
+    elLeft: element.style.left,
+    elPosition: element.style.position,
+    elTransform: element.style.transform
+  };
+  document.body.style.padding = '0';
+  document.body.style.margin = '0';
+  element.style.margin = '0';
+  element.style.maxWidth = '100%';
+  element.style.width = '100%';
+  element.style.padding = '8px';
+  element.style.left = '0';
+  element.style.position = 'relative';
+  element.style.transform = 'none';
+  window.scrollTo(0, 0);
+
+  function restaurarUI() {
+    document.body.classList.remove('pdf-exporting');
+    if (wasDark) document.body.classList.add('dark-mode');
+    noPrintEls.forEach((el, i) => { el.style.display = prevDisplay[i] || ''; });
+    imgsCreadas.forEach(function (pair) {
+      if (pair.img && pair.img.parentNode) pair.img.parentNode.removeChild(pair.img);
+      if (pair.svg) pair.svg.style.display = '';
+    });
+    document.body.style.padding = prevStyles.bodyPadding;
+    document.body.style.margin = prevStyles.bodyMargin;
+    element.style.margin = prevStyles.elMargin;
+    element.style.maxWidth = prevStyles.elMaxWidth;
+    element.style.width = prevStyles.elWidth;
+    element.style.padding = prevStyles.elPadding;
+    element.style.left = prevStyles.elLeft;
+    element.style.position = prevStyles.elPosition;
+    element.style.transform = prevStyles.elTransform;
+  }
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: 'Cotizacion_Division_Bano_' + safeName + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      scrollX: 0,
+      scrollY: 0,
+      x: 0,
+      y: 0,
+      backgroundColor: '#ffffff',
+      onclone: function (clonedDoc) {
+        clonedDoc.body.classList.add('pdf-exporting');
+        clonedDoc.body.classList.remove('dark-mode');
+        clonedDoc.body.style.margin = '0';
+        clonedDoc.body.style.padding = '0';
+        clonedDoc.body.style.background = '#ffffff';
+        clonedDoc.documentElement.style.margin = '0';
+        clonedDoc.documentElement.style.padding = '0';
+        const cont = clonedDoc.getElementById('pdf-export-container');
+        if (cont) {
+          cont.style.margin = '0';
+          cont.style.maxWidth = '100%';
+          cont.style.width = '100%';
+          cont.style.padding = '8px';
+          cont.style.left = '0';
+          cont.style.position = 'relative';
+          cont.style.transform = 'none';
+          cont.style.boxSizing = 'border-box';
+        }
+        clonedDoc.querySelectorAll('.no-print, .inputs-section').forEach(function (el) {
+          el.style.display = 'none';
+        });
+        clonedDoc.querySelectorAll('.tab-content').forEach(function (t) {
+          t.style.display = 'none';
+        });
+        const tab = clonedDoc.getElementById('tab-despiece');
+        if (tab) tab.style.display = 'block';
+        clonedDoc.querySelectorAll('.schema-container').forEach(function (box) {
+          box.style.overflow = 'hidden';
+          box.style.maxWidth = '100%';
+          box.style.width = '100%';
+          box.style.boxSizing = 'border-box';
+          box.style.marginLeft = '0';
+          box.style.marginRight = '0';
+        });
+        clonedDoc.querySelectorAll('table').forEach(function (tb) {
+          tb.style.width = '100%';
+          tb.style.maxWidth = '100%';
+          tb.style.tableLayout = 'fixed';
+          tb.style.boxSizing = 'border-box';
+          tb.style.marginLeft = '0';
+          tb.style.marginRight = '0';
+        });
+        clonedDoc.querySelectorAll('.pdf-plano-img').forEach(function (img) {
+          img.style.maxHeight = 'none';
+          img.style.width = '100%';
+          img.style.maxWidth = '100%';
+          img.style.height = 'auto';
+          img.style.display = 'block';
+          img.style.margin = '8px 0';
+        });
+      }
+    },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['.schema-container', '.vertical-cost-panel', '#box-plano-paneles', 'table', 'tr', 'h2', '.pdf-plano-img', '.info-card-plano'] }
+  };
+
+  // Esperar a que las imágenes SVG se carguen
+  const waitImgs = imgsCreadas.map(function (p) {
+    return new Promise(function (resolve) {
+      if (p.img.complete) resolve();
+      else {
+        p.img.onload = resolve;
+        p.img.onerror = resolve;
+        setTimeout(resolve, 800);
+      }
+    });
+  });
+
+  Promise.all(waitImgs).then(function () {
+    setTimeout(function () {
+      html2pdf().set(opt).from(element).save().then(function () {
+        restaurarUI();
+      }).catch(function (err) {
+        restaurarUI();
+        console.error(err);
+        alert('Error al generar PDF. Prueba con «Imprimir» &#8594; Guardar como PDF.\n' + (err.message || ''));
+      });
+    }, 150);
+  });
+}
+
+function sincronizarCatalogos() {
+  const selectAluminio = document.getElementById('select-color-aluminio-activo');
+  const valAluminioAnt = selectAluminio.value;
+  selectAluminio.innerHTML = '';
+  
+  const filasColores = document.querySelectorAll('#tabla-colores tr');
+  filasColores.forEach(tr => {
+    const nombreColor = tr.children[0].textContent.trim();
+    if (nombreColor) {
+      const opt = document.createElement('option');
+      opt.value = nombreColor;
+      opt.textContent = nombreColor;
+      if (nombreColor === valAluminioAnt) opt.selected = true;
+      selectAluminio.appendChild(opt);
+    }
+  });
+
+  const selectAcrilico = document.getElementById('select-estilo-acrilico');
+  const valAcrilicoAnt = selectAcrilico.value;
+  selectAcrilico.innerHTML = '';
+
+  const filasAcrilico = document.querySelectorAll('#tabla-acrilicos-catalogo tr');
+  filasAcrilico.forEach(tr => {
+    const tipo = tr.children[0].textContent.trim();
+    const color = tr.children[1].textContent.trim();
+    if (tipo) {
+      const nombreCompleto = `${tipo} (${color})`;
+      const opt = document.createElement('option');
+      opt.value = nombreCompleto;
+      opt.textContent = nombreCompleto;
+      if (nombreCompleto === valAcrilicoAnt) opt.selected = true;
+      selectAcrilico.appendChild(opt);
+    }
+  });
+
+  const selectAnchoRollo = document.getElementById('select-ancho-rollo');
+  const valAnchoAnt = selectAnchoRollo.value;
+  selectAnchoRollo.innerHTML = '';
+  catalogoAnchosRolloList = [];
+
+  const filasAnchos = document.querySelectorAll('#tabla-anchos-catalogo tr');
+  filasAnchos.forEach(tr => {
+    const anchoNum = parseFloat(tr.querySelector('.val-ancho-cm').textContent) || 0;
+    if (anchoNum > 0 && !catalogoAnchosRolloList.includes(anchoNum)) {
+      catalogoAnchosRolloList.push(anchoNum);
+    }
+  });
+
+  catalogoAnchosRolloList.sort((a, b) => a - b);
+
+  catalogoAnchosRolloList.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a;
+    opt.textContent = `Rollo ${a} cm de ancho`;
+    if (String(a) === String(valAnchoAnt)) opt.selected = true;
+    selectAnchoRollo.appendChild(opt);
+  });
+
+  const selectPapel = document.getElementById('select-estilo-papel');
+  const valPapelAnt = selectPapel.value;
+  selectPapel.innerHTML = '';
+  catalogoPapelesMapa = {};
+
+  const filasPapeles = document.querySelectorAll('#tabla-papeles-catalogo tr');
+  filasPapeles.forEach(tr => {
+    const nombre = tr.children[0].textContent.trim();
+    const anchoRollo = parseFloat(tr.querySelector('.ancho-rollo-val').textContent) || 122;
+    const precioML = parseFloat(tr.querySelector('.precio-mlineal-val').textContent) || 25000;
+
+    if (nombre) {
+      catalogoPapelesMapa[nombre] = { ancho: anchoRollo, precio: precioML };
+      const opt = document.createElement('option');
+      opt.value = nombre;
+      opt.textContent = nombre;
+      if (nombre === valPapelAnt) opt.selected = true;
+      selectPapel.appendChild(opt);
+    }
+  });
+
+  sincronizarPapelSeleccionado();
+}
+
+function sincronizarPapelSeleccionado() {
+  const nombrePapel = document.getElementById('select-estilo-papel').value;
+  if (catalogoPapelesMapa[nombrePapel]) {
+    document.getElementById('precio-papel-metro').value = catalogoPapelesMapa[nombrePapel].precio;
+  }
+  calcularTodo();
+}
+
+function capturarEstadoPagina() {
+  return {
+    nombre: paginasDivisiones[paginaActualIdx] ? paginasDivisiones[paginaActualIdx].nombre : 'División 1',
+    alto: document.getElementById('alto').value,
+    anchoInf: document.getElementById('ancho-inferior').value,
+    anchoSup: document.getElementById('ancho-superior').value,
+    cantidad: document.getElementById('cantidad').value,
+    ignorarDescuadre: document.getElementById('check-ignorar-descuadre').checked,
+    ubicacionDescuadre: document.getElementById('select-ubicacion-descuadre-ancho').value,
+    ladoFijo: document.getElementById('select-lado-fijo').value,
+    sentidoFlecha: document.getElementById('select-sentido-flecha').value,
+    tipoMaterial: document.getElementById('tipo-material-panel').value
+  };
+}
+
+function aplicarEstadoPagina(estado) {
+  if (!estado) return;
+  document.getElementById('alto').value = estado.alto || 180;
+  document.getElementById('ancho-inferior').value = estado.anchoInf || 150;
+  document.getElementById('ancho-superior').value = estado.anchoSup || 155;
+  document.getElementById('cantidad').value = estado.cantidad || 1;
+  document.getElementById('check-ignorar-descuadre').checked = !!estado.ignorarDescuadre;
+  if (estado.ubicacionDescuadre) document.getElementById('select-ubicacion-descuadre-ancho').value = estado.ubicacionDescuadre;
+  if (estado.ladoFijo) document.getElementById('select-lado-fijo').value = estado.ladoFijo;
+  if (estado.sentidoFlecha) document.getElementById('select-sentido-flecha').value = estado.sentidoFlecha;
+  if (estado.tipoMaterial) document.getElementById('tipo-material-panel').value = estado.tipoMaterial;
+  controlarIgnorarDescuadre();
+  chequearDescuadreAncho();
+  actualizarConfigPlano();
+}
+
+function guardarPaginaActual() {
+  if (paginasDivisiones.length === 0) return;
+  paginasDivisiones[paginaActualIdx] = capturarEstadoPagina();
+}
+
+function renderBarraPaginas() {
+  const cont = document.getElementById('barra-paginas-divisiones');
+  if (!cont) return;
+  cont.innerHTML = '';
+  paginasDivisiones.forEach((pag, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn ' + (idx === paginaActualIdx ? 'btn-primary' : 'btn-toggle');
+    btn.style.cssText = 'padding:6px 12px; font-size:13px;';
+    btn.textContent = pag.nombre || ('División ' + (idx + 1));
+    btn.onclick = () => cambiarPagina(idx);
+    cont.appendChild(btn);
+  });
+}
+
+function cambiarPagina(idx) {
+  if (idx === paginaActualIdx) return;
+  guardarPaginaActual();
+  paginaActualIdx = idx;
+  aplicarEstadoPagina(paginasDivisiones[idx]);
+  renderBarraPaginas();
+  calcularTodo();
+}
+
+function agregarPaginaDivision() {
+  guardarPaginaActual();
+  const num = paginasDivisiones.length + 1;
+  const nombre = prompt('Nombre de la nueva división:', 'División ' + num) || ('División ' + num);
+  paginasDivisiones.push({
+    nombre: nombre,
+    alto: 180,
+    anchoInf: 150,
+    anchoSup: 155,
+    cantidad: 1,
+    ignorarDescuadre: false,
+    ubicacionDescuadre: 'ARRIBA DERECHA',
+    ladoFijo: 'IZQUIERDA',
+    sentidoFlecha: 'DERECHA',
+    tipoMaterial: 'ACRILICO'
+  });
+  paginaActualIdx = paginasDivisiones.length - 1;
+  aplicarEstadoPagina(paginasDivisiones[paginaActualIdx]);
+  renderBarraPaginas();
+  calcularTodo();
+}
+
+function eliminarPaginaActual() {
+  if (paginasDivisiones.length <= 1) {
+    alert('Debe quedar al menos una división.');
+    return;
+  }
+  if (!confirm('¿Eliminar la página actual "' + (paginasDivisiones[paginaActualIdx].nombre || '') + '"?')) return;
+  paginasDivisiones.splice(paginaActualIdx, 1);
+  if (paginaActualIdx >= paginasDivisiones.length) paginaActualIdx = paginasDivisiones.length - 1;
+  aplicarEstadoPagina(paginasDivisiones[paginaActualIdx]);
+  renderBarraPaginas();
+  calcularTodo();
+}
+
+function calcularTodo() {
+  const alto = parseFloat(document.getElementById('alto').value) || 0;
+  const anchoInf = parseFloat(document.getElementById('ancho-inferior').value) || 0;
+  const anchoSup = parseFloat(document.getElementById('ancho-superior').value) || 0;
+  const cantDivisiones = parseInt(document.getElementById('cantidad').value) || 1;
+  const ignorarDesc = document.getElementById('check-ignorar-descuadre').checked;
+
+  document.getElementById('cota-alto').textContent = alto + ' cm';
+  document.getElementById('cota-ancho-inf').textContent = 'Inf: ' + anchoInf + ' cm';
+  document.getElementById('cota-ancho-sup').textContent = 'Sup: ' + anchoSup + ' cm';
+
+  const marcoSVG = document.getElementById('svg-marco-principal');
+  const polyIzq = document.getElementById('poly-izq');
+  const polyDer = document.getElementById('poly-der');
+  const txtAlertaPlano = document.getElementById('txt-alerta-descuadre-plano');
+  
+  let xTopLeft = 60;
+  let xTopRight = 280;
+  let xBottomLeft = 60;
+  let xBottomRight = 280;
+
+  const diffTotal = Math.abs(anchoSup - anchoInf);
+  const hayDescuadre = (anchoInf !== anchoSup && !ignorarDesc);
+
+  if (hayDescuadre) {
+    const ubicacionDesc = document.getElementById('select-ubicacion-descuadre-ancho').value;
+    
+    if (ubicacionDesc === 'AMBOS LADOS') {
+      const descIzq = parseFloat(document.getElementById('valor-descuadre-izq').value) || 0;
+      const descDer = parseFloat(document.getElementById('valor-descuadre-der').value) || 0;
+      xTopLeft = 60 - (descIzq * 2);
+      xTopRight = 280 + (descDer * 2);
+      txtAlertaPlano.textContent = 'DESCUADRE AMBOS LADOS';
+      txtAlertaPlano.setAttribute('x', '170');
+      txtAlertaPlano.setAttribute('y', '22');
+    } else {
+      const valDesc = diffTotal;
+      if (ubicacionDesc === 'ARRIBA DERECHA') {
+        xTopRight = 280 + (valDesc * 3);
+        txtAlertaPlano.setAttribute('x', '245');
+        txtAlertaPlano.setAttribute('y', '22');
+      } else if (ubicacionDesc === 'ARRIBA IZQUIERDA') {
+        xTopLeft = 60 - (valDesc * 3);
+        txtAlertaPlano.setAttribute('x', '95');
+        txtAlertaPlano.setAttribute('y', '22');
+      } else if (ubicacionDesc === 'ABAJO DERECHA') {
+        xBottomRight = 280 + (valDesc * 3);
+        txtAlertaPlano.setAttribute('x', '245');
+        txtAlertaPlano.setAttribute('y', '208');
+      } else if (ubicacionDesc === 'ABAJO IZQUIERDA') {
+        xBottomLeft = 60 - (valDesc * 3);
+        txtAlertaPlano.setAttribute('x', '95');
+        txtAlertaPlano.setAttribute('y', '208');
+      }
+      txtAlertaPlano.textContent = 'DESCUADRE: ' + ubicacionDesc;
+    }
+    txtAlertaPlano.style.display = 'block';
+  } else {
+    txtAlertaPlano.style.display = 'none';
+  }
+
+  const yTop = 30;
+  const yBot = 190;
+  marcoSVG.setAttribute('points', `${xTopLeft},${yTop} ${xTopRight},${yTop} ${xBottomRight},${yBot} ${xBottomLeft},${yBot}`);
+  
+  const midTop = (xTopLeft + xTopRight) / 2;
+  const midBottom = (xBottomLeft + xBottomRight) / 2;
+  polyIzq.setAttribute('points', `${xTopLeft},${yTop + 2} ${midTop},${yTop + 2} ${midBottom},${yBot - 2} ${xBottomLeft},${yBot - 2}`);
+  polyDer.setAttribute('points', `${midTop},${yTop + 2} ${xTopRight},${yTop + 2} ${xBottomRight},${yBot - 2} ${midBottom},${yBot - 2}`);
+
+  // Ajustar viewBox para que TODO el plano (descuadre + cotas) quepa completo
+  const allX = [xTopLeft, xTopRight, xBottomLeft, xBottomRight, 30];
+  const minX = Math.min.apply(null, allX) - 35;
+  const maxX = Math.max.apply(null, allX) + 20;
+  const minY = 0;
+  const maxY = 245;
+  const vbW = Math.max(maxX - minX, 320);
+  const vbH = maxY - minY;
+  const planoSvg = document.getElementById('plano-svg');
+  if (planoSvg) {
+    planoSvg.setAttribute('viewBox', minX + ' ' + minY + ' ' + vbW + ' ' + vbH);
+    planoSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  }
+
+  // Reposicionar cotas y textos según el marco real
+  const cotaAltoLine = document.querySelector('#plano-svg line[stroke="#ef4444"]');
+  const linesCota = document.querySelectorAll('#plano-svg > line');
+  if (linesCota.length >= 1) {
+    linesCota[0].setAttribute('x1', String(minX + 12));
+    linesCota[0].setAttribute('x2', String(minX + 12));
+    linesCota[0].setAttribute('y1', String(yTop));
+    linesCota[0].setAttribute('y2', String(yBot));
+  }
+  if (linesCota.length >= 2) {
+    linesCota[1].setAttribute('x1', String(Math.min(xBottomLeft, xTopLeft)));
+    linesCota[1].setAttribute('x2', String(Math.max(xBottomRight, xTopRight)));
+    linesCota[1].setAttribute('y1', '215');
+    linesCota[1].setAttribute('y2', '215');
+  }
+  const lineaCotaSup = document.getElementById('linea-cota-sup');
+  if (lineaCotaSup) {
+    lineaCotaSup.setAttribute('x1', String(Math.min(xTopLeft, xBottomLeft)));
+    lineaCotaSup.setAttribute('x2', String(Math.max(xTopRight, xBottomRight)));
+    lineaCotaSup.setAttribute('y1', '12');
+    lineaCotaSup.setAttribute('y2', '12');
+  }
+  const midFrameX = (Math.min(xTopLeft, xBottomLeft) + Math.max(xTopRight, xBottomRight)) / 2;
+  const cotaAltoTxt = document.getElementById('cota-alto');
+  if (cotaAltoTxt) {
+    const cx = minX + 10;
+    const cy = (yTop + yBot) / 2;
+    cotaAltoTxt.setAttribute('x', String(cx));
+    cotaAltoTxt.setAttribute('y', String(cy));
+    cotaAltoTxt.setAttribute('transform', 'rotate(-90 ' + cx + ' ' + cy + ')');
+  }
+  const cotaInfTxt = document.getElementById('cota-ancho-inf');
+  if (cotaInfTxt) {
+    cotaInfTxt.setAttribute('x', String(midFrameX));
+    cotaInfTxt.setAttribute('y', '232');
+  }
+  const cotaSupTxt = document.getElementById('cota-ancho-sup');
+  if (cotaSupTxt) {
+    cotaSupTxt.setAttribute('x', String(midFrameX));
+    cotaSupTxt.setAttribute('y', '10');
+  }
+  // Centrar etiquetas FIJO / CORREDIZA
+  const textIzq = document.getElementById('text-izq');
+  const textDer = document.getElementById('text-der');
+  if (textIzq) {
+    textIzq.setAttribute('x', String((xTopLeft + midTop + xBottomLeft + midBottom) / 4));
+    textIzq.setAttribute('y', String((yTop + yBot) / 2));
+  }
+  if (textDer) {
+    textDer.setAttribute('x', String((midTop + xTopRight + midBottom + xBottomRight) / 4));
+    textDer.setAttribute('y', String((yTop + yBot) / 2));
+  }
+
+  const colorAluminioActivo = document.getElementById('select-color-aluminio-activo').value;
+  document.getElementById('info-aluminio-color').textContent = colorAluminioActivo || 'Aluminio Mate';
+  document.getElementById('info-cant-divisiones').textContent = `${cantDivisiones} División(es)`;
+  document.getElementById('txt-divs-res-num').textContent = cantDivisiones;
+
+  let u325AltoNave = alto - 5.4;
+  // Al ignorar descuadre: usar promedio de los dos anchos (solo afecta perfiles de ancho)
+  let baseAnchoCalculo = (ignorarDesc) ? ((anchoInf + anchoSup) / 2) : anchoInf;
+  let u325AnchoNaveBase = (baseAnchoCalculo + 4) / 2;
+  let u325AltoFijo = u325AltoNave + 1;
+  let u325AnchoFijoBase = u325AnchoNaveBase - 2.5;
+
+  let anchoSupNave = u325AnchoNaveBase;
+  let anchoInfNave = u325AnchoNaveBase;
+  let anchoSupFijo = u325AnchoFijoBase;
+  let anchoInfFijo = u325AnchoFijoBase;
+
+  const ladoFijo = document.getElementById('select-lado-fijo').value;
+
+  if (hayDescuadre) {
+    const ubicacionDesc = document.getElementById('select-ubicacion-descuadre-ancho').value;
+    
+    if (ubicacionDesc === 'AMBOS LADOS') {
+      const descIzqVal = parseFloat(document.getElementById('valor-descuadre-izq').value) || 0;
+      const descDerVal = parseFloat(document.getElementById('valor-descuadre-der').value) || 0;
+      const ubIzq = document.getElementById('select-ambos-izq-ubicacion').value;
+      const ubDer = document.getElementById('select-ambos-der-ubicacion').value;
+
+      if (ladoFijo === 'IZQUIERDA') {
+        if (ubIzq === 'ARRIBA') anchoSupFijo += descIzqVal; else anchoInfFijo += descIzqVal;
+        if (ubDer === 'ARRIBA') anchoSupNave += descDerVal; else anchoInfNave += descDerVal;
+      } else {
+        if (ubIzq === 'ARRIBA') anchoSupNave += descIzqVal; else anchoInfNave += descIzqVal;
+        if (ubDer === 'ARRIBA') anchoSupFijo += descDerVal; else anchoInfFijo += descDerVal;
+      }
+    } else {
+      const valDesc = diffTotal;
+      let esLadoDerecho = ubicacionDesc.includes('DERECHA');
+      let esLadoFijoAfectado = (ladoFijo === 'DERECHA' && esLadoDerecho) || (ladoFijo === 'IZQUIERDA' && !esLadoDerecho);
+
+      if (esLadoFijoAfectado) {
+        if (ubicacionDesc.includes('ARRIBA')) anchoSupFijo += valDesc;
+        if (ubicacionDesc.includes('ABAJO')) anchoInfFijo += valDesc;
+      } else {
+        if (ubicacionDesc.includes('ARRIBA')) anchoSupNave += valDesc;
+        if (ubicacionDesc.includes('ABAJO')) anchoInfNave += valDesc;
+      }
+    }
+  }
+
+  const filasDespiece = document.querySelectorAll('#tabla-despiece-aluminio tr');
+  
+  filasDespiece.forEach(tr => {
+    const desc = tr.children[0].textContent.trim().toUpperCase();
+    const formulaCell = tr.querySelector('.formula-val');
+    const medSupCell = tr.children[2];
+    const medInfCell = tr.children[3];
+    const cantValCell = tr.querySelector('.cant-val');
+    const piezasCell = tr.querySelector('.highlight-cell');
+    const totCmCell = tr.children[6];
+
+    if (formulaCell && medSupCell && medInfCell && cantValCell && piezasCell) {
+      let valSup = 0;
+      let valInf = 0;
+
+      if (desc.includes('CABEZAL')) {
+        valSup = anchoSup;
+        valInf = anchoSup;
+      } else if (desc.includes('CARRILERA')) {
+        valSup = anchoInf - 1;
+        valInf = anchoInf - 1;
+      } else if (desc.includes('JAMBA')) {
+        valSup = alto - 3;
+        valInf = alto - 3;
+      } else if (desc.includes('U325 ALTO NAVE')) {
+        valSup = alto - 5.4;
+        valInf = alto - 5.4;
+        u325AltoNave = valSup;
+      } else if (desc.includes('U325 ANCHO NAVE')) {
+        valSup = anchoSupNave;
+        valInf = anchoInfNave;
+      } else if (desc.includes('U325 ALTO FIJO')) {
+        valSup = u325AltoNave + 1;
+        valInf = u325AltoNave + 1;
+      } else if (desc.includes('U325 ANCHO FIJO')) {
+        valSup = anchoSupFijo;
+        valInf = anchoInfFijo;
+      } else if (desc.includes('BARRA TOALLERO') || desc.includes('TOALLERO')) {
+        valSup = anchoSupNave - 7;
+        valInf = anchoInfNave - 7;
+      } else {
+        valSup = 100;
+        valInf = 100;
+      }
+
+      medSupCell.textContent = valSup.toFixed(1);
+      medInfCell.textContent = valInf.toFixed(1);
+
+      const c = parseFloat(cantValCell.textContent) || 1;
+      const totPiezas = c * cantDivisiones;
+      piezasCell.textContent = `${totPiezas} pedazo(s)`;
+      
+      const promedioMedida = (valSup + valInf) / 2;
+      if (totCmCell) totCmCell.textContent = `${(promedioMedida * totPiezas).toFixed(1)} cm`;
+    }
+  });
+
+  const filasVidrios = document.querySelectorAll('#tabla-vidrios tr');
+  let altoCorrediza = u325AltoNave - 3.8;
+  let anchoCorredizaSup = anchoSupNave - 3.8;
+  let anchoCorredizaInf = anchoInfNave - 3.8;
+  let altoFijo = (u325AltoNave + 1) - 3.8;
+  let anchoFijoSup = anchoSupFijo - 3.8;
+  let anchoFijoInf = anchoInfFijo - 3.8;
+
+  filasVidrios.forEach(tr => {
+    const desc = tr.children[0].textContent.trim().toUpperCase();
+    const altoPanelCell = tr.children[2];
+    const anchoSupPanelCell = tr.children[3];
+    const anchoInfPanelCell = tr.children[4];
+    const totPiezasPanelCell = tr.children[6];
+
+    if (altoPanelCell && anchoSupPanelCell && anchoInfPanelCell) {
+      if (desc.includes('CORREDIZA')) {
+        altoPanelCell.textContent = altoCorrediza.toFixed(1);
+        anchoSupPanelCell.textContent = anchoCorredizaSup.toFixed(1);
+        anchoInfPanelCell.textContent = anchoCorredizaInf.toFixed(1);
+        if (totPiezasPanelCell) totPiezasPanelCell.textContent = `${cantDivisiones} nave(s)`;
+      } else if (desc.includes('FIJO')) {
+        altoPanelCell.textContent = altoFijo.toFixed(1);
+        anchoSupPanelCell.textContent = anchoFijoSup.toFixed(1);
+        anchoInfPanelCell.textContent = anchoFijoInf.toFixed(1);
+        if (totPiezasPanelCell) totPiezasPanelCell.textContent = `${cantDivisiones} fijo(s)`;
+      }
+    }
+  });
+
+  const boxPlanoPaneles = document.getElementById('box-plano-paneles');
+  const tipoPanel = document.getElementById('tipo-material-panel').value;
+  const modoEspejoEl = document.getElementById('select-modo-espejo-panel');
+  const modoEspejo = modoEspejoEl ? modoEspejoEl.value : 'NORMAL';
+
+  const corrDescuadrado = Math.abs(anchoCorredizaSup - anchoCorredizaInf) > 0.05;
+  const fijoDescuadrado = Math.abs(anchoFijoSup - anchoFijoInf) > 0.05;
+
+  if (hayDescuadre) {
+    boxPlanoPaneles.style.display = 'block';
+
+    // Determinar lado del descuadre (qué vertical se inclina)
+    let ladoInclinacionCorr = 'DERECHA';
+    let ladoInclinacionFijo = 'IZQUIERDA';
+    const ubicacionDesc = document.getElementById('select-ubicacion-descuadre-ancho').value;
+    const ladoFijoActual = document.getElementById('select-lado-fijo').value;
+
+    if (ubicacionDesc === 'AMBOS LADOS') {
+      ladoInclinacionCorr = (ladoFijoActual === 'IZQUIERDA') ? 'DERECHA' : 'IZQUIERDA';
+      ladoInclinacionFijo = (ladoFijoActual === 'IZQUIERDA') ? 'IZQUIERDA' : 'DERECHA';
+    } else {
+      const esLadoDerecho = ubicacionDesc.includes('DERECHA');
+      const esLadoFijoAfectado = (ladoFijoActual === 'DERECHA' && esLadoDerecho) || (ladoFijoActual === 'IZQUIERDA' && !esLadoDerecho);
+      if (esLadoFijoAfectado) {
+        ladoInclinacionFijo = esLadoDerecho ? 'DERECHA' : 'IZQUIERDA';
+        ladoInclinacionCorr = 'NINGUNO';
+      } else {
+        ladoInclinacionCorr = esLadoDerecho ? 'DERECHA' : 'IZQUIERDA';
+        ladoInclinacionFijo = 'NINGUNO';
+      }
+    }
+
+    document.getElementById('info-modo-corte-panel').innerHTML =
+      `&#8505;&#65039; Solo paneles descuadrados. Inclinación solo en el lado del descuadre. Modo espejo: <b>${modoEspejo}</b>`;
+
+    function dibujarPanelDescuadrado(polyId, txtId, lblId, boxId, wSup, wInf, altoPanel, ladoInclina, esCorr) {
+      const box = document.getElementById(boxId);
+      const poly = document.getElementById(polyId);
+      const txt = document.getElementById(txtId);
+      const lbl = document.getElementById(lblId);
+      if (!box || !poly || !txt || !lbl) return;
+
+      // Solo mostrar si está descuadrado
+      if (Math.abs(wSup - wInf) < 0.05) {
+        box.style.display = 'none';
+        return;
+      }
+      box.style.display = 'block';
+
+      const maxW = Math.max(wSup, wInf, 10);
+      const scale = 110 / maxW;
+      const cyTop = 20;
+      const cyBot = 140;
+
+      let leftTop, rightTop, leftBot, rightBot;
+
+      if (ladoInclina === 'DERECHA') {
+        // Izquierdo recto, derecho inclinado
+        leftTop = 45;
+        leftBot = 45;
+        rightTop = 45 + (wSup * scale);
+        rightBot = 45 + (wInf * scale);
+      } else if (ladoInclina === 'IZQUIERDA') {
+        // Derecho recto, izquierdo inclinado
+        rightTop = 155;
+        rightBot = 155;
+        leftTop = 155 - (wSup * scale);
+        leftBot = 155 - (wInf * scale);
+      } else {
+        // Centrado (cuando no aplica inclinación a este panel)
+        const mid = 100;
+        leftTop = mid - (wSup * scale) / 2;
+        rightTop = mid + (wSup * scale) / 2;
+        leftBot = mid - (wInf * scale) / 2;
+        rightBot = mid + (wInf * scale) / 2;
+      }
+
+      let pts = [
+        [leftTop, cyTop],
+        [rightTop, cyTop],
+        [rightBot, cyBot],
+        [leftBot, cyBot]
+      ];
+
+      // Aplicar espejo
+      if (modoEspejo === 'HORIZONTAL' || modoEspejo === 'AMBOS') {
+        pts = pts.map(p => [200 - p[0], p[1]]);
+      }
+      if (modoEspejo === 'VERTICAL' || modoEspejo === 'AMBOS') {
+        pts = pts.map(p => [p[0], 160 - p[1]]);
+      }
+
+      poly.setAttribute('points', pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' '));
+      poly.setAttribute('fill', '#bfdbfe');
+      poly.setAttribute('stroke', '#1e40af');
+      poly.setAttribute('stroke-width', '2');
+      txt.setAttribute('fill', '#1e40af');
+
+      const etiqueta = esCorr ? 'Corr.' : 'Fijo';
+      txt.textContent = etiqueta + ' (' + altoPanel.toFixed(1) + ' cm)';
+
+      if (modoEspejo === 'VERTICAL' || modoEspejo === 'AMBOS') {
+        lbl.textContent = 'Sup: ' + wInf.toFixed(1) + ' cm | Inf: ' + wSup.toFixed(1) + ' cm (espejo vert.)';
+      } else {
+        lbl.textContent = 'Sup: ' + wSup.toFixed(1) + ' cm | Inf: ' + wInf.toFixed(1) + ' cm';
+      }
+    }
+
+    // Dibujar siempre ambos (la función oculta el que no esté descuadrado)
+    dibujarPanelDescuadrado('poly-panel-corr', 'txt-corr-dim', 'lbl-dim-corr', 'box-panel-corrediza',
+      anchoCorredizaSup, anchoCorredizaInf, altoCorrediza, ladoInclinacionCorr, true);
+
+    dibujarPanelDescuadrado('poly-panel-fij', 'txt-fij-dim', 'lbl-dim-fij', 'box-panel-fijo',
+      anchoFijoSup, anchoFijoInf, altoFijo, ladoInclinacionFijo, false);
+
+  } else {
+    boxPlanoPaneles.style.display = 'none';
+  }
+
+  // 1. CÁLCULO DE COSTO Y CANTIDAD DE ALUMINIO
+  let sumAluminio = 0;
+  let longitudesMap = {};
+
+  filasDespiece.forEach(tr => {
+    const desc = tr.children[0].textContent.trim().toUpperCase();
+    const medSup = parseFloat(tr.children[2].textContent) || 0;
+    const medInf = parseFloat(tr.children[3].textContent) || 0;
+    const cantUnit = parseFloat(tr.querySelector('.cant-val')?.textContent) || 1;
+    const totalPiezas = cantUnit * cantDivisiones;
+    const promMedida = (medSup + medInf) / 2;
+    const longTot = promMedida * totalPiezas;
+
+    let grupo = desc;
+    if (desc.includes('CABEZAL')) grupo = 'CABEZAL';
+    else if (desc.includes('CARRILERA')) grupo = 'CARRILERA';
+    else if (desc.includes('JAMBA')) grupo = 'JAMBA';
+    else if (desc.includes('U325')) grupo = 'PERFIL U325';
+    else if (desc.includes('BARRA TOALLERO') || desc.includes('TOALLERO')) grupo = 'BARRA TOALLERO';
+
+    if (!longitudesMap[grupo]) longitudesMap[grupo] = 0;
+    longitudesMap[grupo] += longTot;
+  });
+
+  const filasCostosAlum = document.querySelectorAll('#tabla-costos-aluminio tr');
+  filasCostosAlum.forEach(tr => {
+    const perfilNombre = tr.querySelector('td b')?.textContent.trim().toUpperCase() || tr.children[0].textContent.trim().toUpperCase();
+    
+    let totalCm = 0;
+    for (let key in longitudesMap) {
+      if (perfilNombre.includes(key) || key.includes(perfilNombre)) {
+        totalCm += longitudesMap[key];
+      }
+    }
+
+    const modo = tr.querySelector('.costo-modo-select').value;
+    const precioTira = parseFloat(tr.querySelector('.precio-aluminio-val').value) || 0;
+    
+    const tirasExactas = totalCm / 600;
+    const tirasCompletas = Math.ceil(tirasExactas);
+    
+    let subtotalItem = 0;
+    if (modo === 'COMPLETA') {
+      subtotalItem = tirasCompletas * precioTira;
+    } else {
+      subtotalItem = tirasExactas * precioTira;
+    }
+
+    tr.querySelector('.costo-long-cm').textContent = totalCm.toFixed(1) + ' cm';
+    tr.querySelector('.costo-tiras-txt').textContent = tirasCompletas + ' tira(s) (' + tirasExactas.toFixed(2) + ')';
+    tr.querySelector('.subtotal-aluminio-item').textContent = formatearCOP(subtotalItem);
+
+    sumAluminio += subtotalItem;
+  });
+
+  document.getElementById('res-subtotal-aluminio').textContent = formatearCOP(sumAluminio);
+
+  // 2. CÁLCULO Y ACUMULACIÓN DE ACCESORIOS
+  // Fórmula automática EMPAQUE: (ALTO_NAVE + ALTO_FIJO + ANCHO_NAVE + ANCHO_FIJO) × 2  &#8594; por división
+  const cantEmpaqueEl = document.getElementById('cant-empaque');
+  if (cantEmpaqueEl) {
+    const promedioAnchoNave = (anchoSupNave + anchoInfNave) / 2;
+    const promedioAnchoFijo = (anchoSupFijo + anchoInfFijo) / 2;
+    const metrosEmpaquePorDiv = ((u325AltoNave + (u325AltoNave + 1) + promedioAnchoNave + promedioAnchoFijo) * 2) / 100;
+    cantEmpaqueEl.textContent = metrosEmpaquePorDiv.toFixed(2);
+  }
+
+  let sumAccesorios = 0;
+  const filasAcc = document.querySelectorAll('#tabla-accesorios tr');
+  filasAcc.forEach(tr => {
+    const cantUnit = parseFloat(tr.querySelector('.cant-acc-unit')?.textContent) || 0;
+    const totalReq = cantUnit * cantDivisiones;
+    const precioUnit = parseFloat(tr.querySelector('.precio-acc')?.value) || 0;
+    const subtotal = totalReq * precioUnit;
+
+    const unitTxt = tr.children[1].textContent.trim().toLowerCase().includes('metro') ? 'm.' : 'u.';
+    if (tr.children[3]) tr.children[3].textContent = `${totalReq.toFixed(2)} ${unitTxt}`;
+    if (tr.children[5]) tr.children[5].textContent = formatearCOP(subtotal);
+
+    sumAccesorios += subtotal;
+  });
+  document.getElementById('res-subtotal-accesorios').textContent = formatearCOP(sumAccesorios);
+
+  // 3. CÁLCULO DE PANELES (ACRÍLICO VS VIDRIO)
+  let sumPaneles = 0;
+  const boxPreciosAcrilico = document.getElementById('box-precios-acrilico');
+  const boxPreciosVidrio = document.getElementById('box-precios-vidrio');
+  const boxSelectEstiloAcrilico = document.getElementById('box-select-estilo-acrilico');
+
+  if (tipoPanel === 'ACRILICO') {
+    boxPreciosAcrilico.style.display = 'flex';
+    boxSelectEstiloAcrilico.style.display = 'block';
+    boxPreciosVidrio.style.display = 'none';
+
+    const p70 = parseFloat(document.getElementById('precio-acrilico-70').value) || 0;
+    const p100 = parseFloat(document.getElementById('precio-acrilico-100').value) || 0;
+    const p120 = parseFloat(document.getElementById('precio-acrilico-120').value) || 0;
+
+    const maxAnchoCorr = Math.max(anchoCorredizaSup, anchoCorredizaInf);
+    const maxAnchoFijo = Math.max(anchoFijoSup, anchoFijoInf);
+
+    // Función: menor lámina que cabe un ancho
+    function laminaParaAncho(ancho) {
+      if (ancho <= 70) return { ancho: 70, precio: p70 };
+      if (ancho <= 100) return { ancho: 100, precio: p100 };
+      return { ancho: 120, precio: p120 };
+    }
+
+    // Cuenta inteligente: intenta juntar Corr + Fijo en una sola lámina
+    const sumaAnchos = maxAnchoCorr + maxAnchoFijo;
+    let hojas70 = 0, hojas100 = 0, hojas120 = 0;
+    let detalleTexto = '';
+
+    if (sumaAnchos <= 70) {
+      // Ambos caben en una lámina de 70
+      hojas70 = 1 * cantDivisiones;
+      detalleTexto = `${cantDivisiones} lámina(s) de 70cm (Corr+Fijo juntos)`;
+    } else if (sumaAnchos <= 100) {
+      // Ambos caben en una lámina de 100
+      hojas100 = 1 * cantDivisiones;
+      detalleTexto = `${cantDivisiones} lámina(s) de 100cm (Corr+Fijo juntos)`;
+    } else if (sumaAnchos <= 120) {
+      // Ambos caben en una lámina de 120
+      hojas120 = 1 * cantDivisiones;
+      detalleTexto = `${cantDivisiones} lámina(s) de 120cm (Corr+Fijo juntos)`;
+    } else {
+      // No caben juntos &#8594; lámina separada para cada uno
+      const lamCorr = laminaParaAncho(maxAnchoCorr);
+      const lamFijo = laminaParaAncho(maxAnchoFijo);
+
+      if (lamCorr.ancho === 70) hojas70 += cantDivisiones;
+      else if (lamCorr.ancho === 100) hojas100 += cantDivisiones;
+      else hojas120 += cantDivisiones;
+
+      if (lamFijo.ancho === 70) hojas70 += cantDivisiones;
+      else if (lamFijo.ancho === 100) hojas100 += cantDivisiones;
+      else hojas120 += cantDivisiones;
+
+      detalleTexto = `Corr: ${cantDivisiones}x(${lamCorr.ancho}cm) + Fijo: ${cantDivisiones}x(${lamFijo.ancho}cm)`;
+    }
+
+    sumPaneles = (hojas70 * p70) + (hojas100 * p100) + (hojas120 * p120);
+
+    document.getElementById('txt-tipo-panel').textContent = 'Acrílico';
+    document.getElementById('txt-detalle-acrilico-lamina').textContent = detalleTexto;
+  } else {
+    boxPreciosAcrilico.style.display = 'none';
+    boxSelectEstiloAcrilico.style.display = 'none';
+    boxPreciosVidrio.style.display = 'flex';
+
+    const pVidrioM2 = parseFloat(document.getElementById('precio-vidrio-m2').value) || 0;
+
+    const areaCorrM2 = (altoCorrediza * ((anchoCorredizaSup + anchoCorredizaInf) / 2)) / 10000;
+    const areaFijoM2 = (altoFijo * ((anchoFijoSup + anchoFijoInf) / 2)) / 10000;
+
+    const areaTotalM2 = (areaCorrM2 + areaFijoM2) * cantDivisiones;
+    sumPaneles = areaTotalM2 * pVidrioM2;
+
+    document.getElementById('txt-tipo-panel').textContent = 'Vidrio 4mm';
+    document.getElementById('txt-detalle-acrilico-lamina').textContent = 
+      `Área total: ${areaTotalM2.toFixed(2)} m² @ ${formatearCOP(pVidrioM2)}/m²`;
+  }
+  document.getElementById('res-subtotal-paneles').textContent = formatearCOP(sumPaneles);
+
+  // 4. CÁLCULO DE PELÍCULA / PAPEL
+  let sumPapel = 0;
+  const llevaPapel = document.getElementById('check-papel').checked;
+  const boxModuloPapel = document.getElementById('box-modulo-papel');
+  const rowCostoPapel = document.getElementById('row-costo-papel');
+
+  if (tipoPanel === 'VIDRIO' && llevaPapel) {
+    boxModuloPapel.style.display = 'block';
+    rowCostoPapel.style.display = 'flex';
+
+    const orientacion = document.getElementById('select-orientacion-papel').value;
+    const pMetroPapel = parseFloat(document.getElementById('precio-papel-metro').value) || 0;
+
+    const maxAnchoCorr = Math.max(anchoCorredizaSup, anchoCorredizaInf);
+    const maxAnchoFijo = Math.max(anchoFijoSup, anchoFijoInf);
+
+    let MLTotales = 0;
+    if (orientacion === 'VERTICAL') {
+      MLTotales = ((altoCorrediza * cantDivisiones) + (altoFijo * cantDivisiones)) / 100;
+    } else {
+      MLTotales = ((maxAnchoCorr * cantDivisiones) + (maxAnchoFijo * cantDivisiones)) / 100;
+    }
+
+    sumPapel = MLTotales * pMetroPapel;
+
+    document.getElementById('txt-consumo-papel').textContent = `${MLTotales.toFixed(2)} metros lineales`;
+    document.getElementById('txt-metros-papel-res').textContent = `${MLTotales.toFixed(2)}m`;
+    document.getElementById('res-subtotal-papel').textContent = formatearCOP(sumPapel);
+  } else {
+    boxModuloPapel.style.display = 'none';
+    rowCostoPapel.style.display = 'none';
+  }
+
+  // 5. GRAN TOTAL
+  const granTotal = sumAluminio + sumAccesorios + sumPaneles + sumPapel;
+  document.getElementById('res-gran-total').textContent = formatearCOP(granTotal);
+}
+
+function agregarPerfil() {
+  const tbody = document.getElementById('tabla-despiece-aluminio');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td contenteditable="true" class="edit-cell">NUEVO PERFIL</td>
+    <td contenteditable="true" class="edit-cell formula-val" oninput="calcularTodo()">ALTO - 5</td>
+    <td>100.0</td>
+    <td>100.0</td>
+    <td contenteditable="true" class="edit-cell cant-val" oninput="calcularTodo()">1</td>
+    <td class="highlight-cell">1 pedazo(s)</td>
+    <td>100.0 cm</td>
+    <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+  `;
+  tbody.appendChild(tr);
+  calcularTodo();
+}
+
+function eliminarFila(btn) {
+  const row = btn.closest('tr');
+  row.remove();
+  sincronizarCatalogos();
+  calcularTodo();
+}
+
+function agregarAccesorio() {
+  const tbody = document.getElementById('tabla-accesorios');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td contenteditable="true" class="edit-cell">NUEVO ACCESORIO</td>
+    <td contenteditable="true" class="edit-cell">Unidades</td>
+    <td contenteditable="true" class="edit-cell cant-acc-unit" oninput="calcularTodo()">1</td>
+    <td style="font-weight:bold;">1 u.</td>
+    <td><input type="number" class="precio-input-tabla precio-acc" value="1000" oninput="calcularTodo()"></td>
+    <td class="subtotal-acc">$1,000</td>
+    <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+  `;
+  tbody.appendChild(tr);
+  calcularTodo();
+}
+
+function agregarPerfilCostoAluminio() {
+  const tbody = document.getElementById('tabla-costos-aluminio');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td contenteditable="true" class="edit-cell"><b>PERFIL PERSONALIZADO</b></td>
+    <td class="costo-long-cm">0.0 cm</td>
+    <td class="costo-tiras-txt">0 tira(s)</td>
+    <td>
+      <select class="costo-modo-select" onchange="calcularTodo()" style="font-size:12px; padding:4px;">
+        <option value="PROPORCIONAL">Proporcional (Regla Taller)</option>
+        <option value="COMPLETA">Tiras Completas 600cm</option>
+      </select>
+    </td>
+    <td><input type="number" class="precio-input-tabla precio-aluminio-val" value="30000" oninput="calcularTodo()"></td>
+    <td class="subtotal-aluminio-item">$0</td>
+    <td class="no-print"><button class="btn btn-danger" onclick="eliminarFilaCosto(this)">&#10060;</button></td>
+  `;
+  tbody.appendChild(tr);
+  calcularTodo();
+}
+
+function eliminarFilaCosto(btn) {
+  const row = btn.closest('tr');
+  row.remove();
+  calcularTodo();
+}
+
+function actualizarConfigPlano() {
+  const ladoFijo = document.getElementById('select-lado-fijo').value;
+  const sentidoFlecha = document.getElementById('select-sentido-flecha').value;
+
+  const infoFijoLado = document.getElementById('info-fijo-lado');
+  if (infoFijoLado) infoFijoLado.textContent = ladoFijo === 'IZQUIERDA' ? 'Izquierda' : 'Derecha';
+
+  const textIzq = document.getElementById('text-izq');
+  const textDer = document.getElementById('text-der');
+  const polyIzq = document.getElementById('poly-izq');
+  const polyDer = document.getElementById('poly-der');
+  const iconIzq = document.getElementById('icon-izq');
+  const iconDer = document.getElementById('icon-der');
+
+  if (ladoFijo === 'IZQUIERDA') {
+    polyIzq.setAttribute('fill', '#e2efda');
+    polyIzq.setAttribute('stroke', '#385723');
+    textIzq.textContent = "FIJO";
+    textIzq.setAttribute('fill', '#385723');
+
+    polyDer.setAttribute('fill', '#d9e1f2');
+    polyDer.setAttribute('stroke', '#1f4e78');
+    textDer.textContent = "CORREDIZA";
+    textDer.setAttribute('fill', '#1f4e78');
+
+    iconIzq.innerHTML = '';
+    let marker = sentidoFlecha === 'DERECHA' ? 'url(#arrow-right)' : 'url(#arrow-left)';
+    let x1 = sentidoFlecha === 'DERECHA' ? '190' : '250';
+    let x2 = sentidoFlecha === 'DERECHA' ? '250' : '190';
+    iconDer.innerHTML = `<line x1="${x1}" y1="125" x2="${x2}" y2="125" stroke="#10b981" stroke-width="3" marker-end="${marker}"/>`;
+  } else {
+    polyIzq.setAttribute('fill', '#d9e1f2');
+    polyIzq.setAttribute('stroke', '#1f4e78');
+    textIzq.textContent = "CORREDIZA";
+    textIzq.setAttribute('fill', '#1f4e78');
+
+    polyDer.setAttribute('fill', '#e2efda');
+    polyDer.setAttribute('stroke', '#385723');
+    textDer.textContent = "FIJO";
+    textDer.setAttribute('fill', '#385723');
+
+    iconDer.innerHTML = '';
+    let marker = sentidoFlecha === 'DERECHA' ? 'url(#arrow-right)' : 'url(#arrow-left)';
+    let x1 = sentidoFlecha === 'DERECHA' ? '80' : '140';
+    let x2 = sentidoFlecha === 'DERECHA' ? '140' : '80';
+    iconIzq.innerHTML = `<line x1="${x1}" y1="125" x2="${x2}" y2="125" stroke="#10b981" stroke-width="3" marker-end="${marker}"/>`;
+  }
+  calcularTodo();
+}
+
+function agregarColor() {
+  const tbody = document.getElementById('tabla-colores');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Nuevo Color</td>
+    <td contenteditable="true" class="edit-cell">REF-00</td>
+    <td class="no-print"><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+  `;
+  tbody.appendChild(tr);
+  sincronizarCatalogos();
+}
+
+function agregarAcrilicoCatalogo() {
+  const tbody = document.getElementById('tabla-acrilicos-catalogo');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Nuevo Acrílico</td>
+    <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Color / Textura</td>
+    <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+  `;
+  tbody.appendChild(tr);
+  sincronizarCatalogos();
+}
+
+function agregarPapelCatalogo() {
+  const tbody = document.getElementById('tabla-papeles-catalogo');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td contenteditable="true" class="edit-cell" oninput="sincronizarCatalogos()">Nueva Película</td>
+    <td contenteditable="true" class="edit-cell ancho-rollo-val" oninput="sincronizarCatalogos()">122</td>
+    <td contenteditable="true" class="edit-cell precio-mlineal-val" oninput="sincronizarCatalogos()">20000</td>
+    <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+  `;
+  tbody.appendChild(tr);
+  sincronizarCatalogos();
+}
+
+function agregarAnchoRolloCatalogo() {
+  const tbody = document.getElementById('tabla-anchos-catalogo');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td contenteditable="true" class="edit-cell val-ancho-cm" oninput="sincronizarCatalogos()">100</td>
+    <td><button class="btn btn-danger" onclick="eliminarFila(this)">&#10060;</button></td>
+  `;
+  tbody.appendChild(tr);
+  sincronizarCatalogos();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  sincronizarCatalogos();
+  cargarDatosMemoria();
+  // Inicializar al menos una página independiente
+  if (paginasDivisiones.length === 0) {
+    paginasDivisiones.push({
+      nombre: 'División 1',
+      alto: document.getElementById('alto').value,
+      anchoInf: document.getElementById('ancho-inferior').value,
+      anchoSup: document.getElementById('ancho-superior').value,
+      cantidad: document.getElementById('cantidad').value,
+      ignorarDescuadre: false,
+      ubicacionDescuadre: 'ARRIBA DERECHA',
+      ladoFijo: 'IZQUIERDA',
+      sentidoFlecha: 'DERECHA',
+      tipoMaterial: 'ACRILICO'
+    });
+    paginaActualIdx = 0;
+  }
+  renderBarraPaginas();
+  chequearDescuadreAncho();
+  actualizarConfigPlano();
+  calcularTodo();
+});
+</script>
+
+</body>
+</html>
